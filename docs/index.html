@@ -460,7 +460,7 @@ function updateChrome(){
 
 /* =============== self-contained QR encoder =============== */
 /* Byte mode, error correction level M, versions 1-6 (up to 106 bytes –
-   plenty for any GitHub Pages join URL). No external library needed.  */
+   plenty for any join URL). No external library needed.               */
 const QR=(()=>{
   /* GF(256) arithmetic, generator polynomial 0x11D */
   const EXP=new Uint8Array(512), LOG=new Uint8Array(256);
@@ -682,7 +682,6 @@ const SFX=(()=>{
     wrong(){ tone(200,.22,{to:140,vol:.15}); tone(150,.3,{at:.12,to:110,vol:.13}); },
     reveal(){ tone(330,.1,{vol:.1}); tone(440,.14,{at:.08,vol:.1}); },
     score(){ tone(494,.1,{vol:.1}); tone(622,.14,{at:.08,vol:.1}); },
-    skip(){ tone(340,.14,{to:220,vol:.12}); },
     fanfare(){ const seq=[[392,.14,0],[523,.14,.16],[659,.14,.32],[784,.4,.48],[196,.5,.48],[1046,.5,.72]];
       seq.forEach(([f,d,a])=>tone(f,d,{at:a,type:'triangle',vol:.15})); },
   };
@@ -826,22 +825,48 @@ function buildQuiz(rawRows){
     dataRows=rows.slice(1);
     if(qI==null)qI=0; if(okI==null)okI=1;
     if(!wrongI.length){ const used=new Set([qI,okI,timeI,mediaI]); wrongI=head.map((_,i)=>i).filter(i=>!used.has(i)); }
-    wrongI=wrongI.filter(i=>i!==qI&&i!==okI).slice(0,3);
-    if(timeI==null)timeI=6; if(mediaI==null)mediaI=6;
+    wrongI=wrongI.filter(i=>i!==qI&&i!==okI).slice(0,4);
+    if(timeI==null)timeI=6;
   } else {
     qI=0; okI=1; wrongI=[2,3,4]; timeI=5; mediaI=6; dataRows=rows;
   }
+  /* Kahoot's import template: the "Correct answer(s)" column holds the
+     NUMBER of the right answer (e.g. "3"), not the answer text. Detect
+     that from the first filled data row and handle it transparently.  */
+  let numRef=false;
+  if(headerBased && okI!=null && wrongI.length>=2){
+    for(const r of dataRows){
+      if(String(r[qI]||'').trim()){
+        numRef=/^\d+(?:\s*[,;|]\s*\d+)*$/.test(String(r[okI]||'').trim());
+        break;
+      }
+    }
+  }
   let skipped=0; const questions=[];
   for(const r of dataRows){
-    const cell=i=>String(r[i]||'').trim();
-    const text=cell(qI), correct=cell(okI);
-    const wrongs=wrongI.map(cell).filter(w=>w!=='');
+    const cell=i=>{ const v=(i!=null&&i<r.length)?r[i]:''; return String(v==null?'':v).trim(); };
+    const text=cell(qI);
+    let correct='', wrongs=[];
+    if(numRef){
+      /* the answer columns hold all four options; pick the numbered one */
+      wrongs=wrongI.map(cell).filter(w=>w!=='');
+      const v=cell(okI);
+      if(!/^\d+(?:\s*[,;|]\s*\d+)*$/.test(v)){ skipped++; continue; }   /* invalid entry */
+      const nums=(v.match(/\d+/g)||[]).map(Number);
+      if(nums.length!==1||nums[0]<1||nums[0]>wrongs.length){ skipped++; continue; } /* multi-select or out of range */
+      correct=wrongs[nums[0]-1];
+      wrongs=wrongs.filter((_,i)=>i!==nums[0]-1);
+    } else {
+      correct=cell(okI);
+      wrongs=wrongI.map(cell).filter(w=>w!=='');
+    }
     if(!text||!correct||wrongs.length<3){ skipped++; continue; }
     let t=parseFloat(cell(timeI).replace(',','.'));
     if(!isFinite(t)||t<=0) t=20;
     t=Math.min(180,Math.max(5,Math.round(t)));
+    const media=mediaI!=null?detectMedia(cell(mediaI)):null;
     const opts=shuffle([{t:correct,ok:true},...wrongs.slice(0,3).map(w=>({t:w,ok:false}))]);
-    questions.push({ text, time:t, media:detectMedia(cell(mediaI)), answers:opts.map(o=>o.t), correct:opts.findIndex(o=>o.ok) });
+    questions.push({ text, time:t, media, answers:opts.map(o=>o.t), correct:opts.findIndex(o=>o.ok) });
   }
   if(!questions.length) throw new Error('No complete questions found. Every row needs a question, 1 correct and 3 wrong answers.');
   return {questions, skipped};
@@ -886,7 +911,7 @@ const Timer={
     if(w!==this.lastW){ this.lastW=w; tNumEl.textContent=w;
       if(w<=5&&w>0){ SFX.tick(); timerBoxEl.classList.add('low'); } }
     if(left<=0){ SFX.timeup(); const cb=this.cb; this.stop(); if(cb) cb(); } },
-  /* click on the timer: run the clock down, normal flow continues */
+  /* click on the timer or pressing space: run the clock down, normal flow continues */
   expire(){ if(!this.id) return; this.endT=performance.now(); this.step(); },
   stop(){ if(this.id){ clearInterval(this.id); this.id=null; } }
 };
@@ -904,7 +929,7 @@ function phase(ms, fn, opts={}){
 function clearPhase(){ clearTimeout(G.phaseTO); G.phaseTO=null; G.phaseNext=null; phaseBarEl.classList.remove('on'); }
 function finishPhase(){ const fn=G.phaseNext; clearPhase(); if(fn) fn(); }
 function skipPhase(){
-  if(G.state==='active'){ endQuestion(true); return; }   /* abort (space only): straight to the next question */
+  if(G.state==='active'){ Timer.expire(); return; }   /* during a question: time runs out */
   if(G.phaseNext) finishPhase();
 }
 
@@ -928,8 +953,20 @@ function enterLobby(){
   setupPeer(0);
 }
 function drawQR(text){
-  const ok=QR.draw($('#qrCanvas'), text, {dark:'#1b1b1b', light:'#f2f1ec'});
-  if(!ok) toast('The join link is too long for a QR code – copy the link instead.','err');
+  const cvs=$('#qrCanvas');
+  try{
+    const ok=QR.draw(cvs, text, {dark:'#1b1b1b', light:'#f2f1ec'});
+    if(!ok) throw new Error('link too long');
+  }catch(e){
+    /* never leave a silently white tile */
+    cvs.width=cvs.height=300;
+    const ctx=cvs.getContext('2d');
+    ctx.fillStyle='#f2f1ec'; ctx.fillRect(0,0,300,300);
+    ctx.fillStyle='#e21b3c'; ctx.font='600 16px Outfit,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('QR error', 150, 140);
+    ctx.fillText('copy the link instead', 150, 165);
+    toast('The QR code could not be generated – copy the link instead.','err');
+  }
 }
 function setupPeer(retry){
   if(typeof Peer==='undefined'){ $('#qrHint').textContent='Connection service offline – students cannot join via QR. Demo players still work.'; return; }
@@ -1032,7 +1069,7 @@ function renderStage(q){
   qSlotEl.appendChild(el('div','qmeta','Question '+(G.qi+1)+' of '+G.order.length));
   qhead.appendChild(qSlotEl);
   timerBoxEl=el('div','timerwrap');
-  timerBoxEl.title='Click: time runs out';
+  timerBoxEl.title='Click or press space: time runs out';
   timerBoxEl.innerHTML='<svg class="tsvg" viewBox="0 0 84 84">'
     +'<circle class="bgc" cx="42" cy="42" r="36" fill="none" stroke-width="6"/>'
     +'<circle class="fgc" cx="42" cy="42" r="36" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="0" transform="rotate(-90 42 42)"/></svg>'
@@ -1054,6 +1091,9 @@ function renderStage(q){
       im.src=q.media.src; im.referrerPolicy='no-referrer';
       mediaBoxEl.appendChild(im);
     }
+    /* hidden until it grows out of the centre in transitionIn –
+       otherwise it flashes behind the intro overlay              */
+    mediaBoxEl.style.opacity='0';
     ms.appendChild(mediaBoxEl);
   } else mediaBoxEl=null;
   stage.appendChild(ms);
@@ -1075,7 +1115,12 @@ function playIntro(){
   introLabel.textContent='Question '+(G.qi+1)+' of '+G.order.length;
   qText.textContent=G.q.text;
   introSlot.appendChild(qText);
+  /* show the overlay instantly (no fade-in): a fading overlay would let
+     the freshly built stage shine through for a fraction of a second   */
+  introOverlay.style.transition='none';
   introOverlay.classList.remove('off');
+  void introOverlay.offsetWidth;
+  introOverlay.style.transition='';
   introBarI.style.transition='none'; introBarI.style.width='100%';
   void introBarI.offsetWidth;
   introBarI.style.transition='width 3000ms linear'; introBarI.style.width='0%';
@@ -1120,7 +1165,7 @@ function beginAnswering(){
   G.qT0=performance.now();
   timerBoxEl.classList.add('show');
   updateTSub();
-  Timer.start(G.q.time, ()=>endQuestion(false));
+  Timer.start(G.q.time, endQuestion);
   broadcastQuestion();
   scheduleBots();
 }
@@ -1153,15 +1198,14 @@ function recordAnswer(p, choice, ms){
   updateTSub();
   const alive=G.players.filter(x=>x.alive);
   if(alive.length && alive.every(x=>x.answered)){
-    setTimeout(()=>{ if(G.state==='active') endQuestion(false); }, 400);
+    setTimeout(()=>{ if(G.state==='active') endQuestion(); }, 400);
   }
 }
-/* aborted = cut short with the space bar: points are awarded silently,
-   then the next question starts right away. Clicking the timer instead
-   runs the clock down and keeps the normal flow.                    */
-function endQuestion(aborted){
+/* called when the clock runs out, when everyone has answered, or when
+   the host presses space / clicks the timer – always the normal flow    */
+function endQuestion(){
   if(G.state!=='active') return;
-  G.state = aborted ? 'skipped' : 'result';
+  G.state='result';
   clearPhase();
   Timer.stop();
   G.botTOs.forEach(clearTimeout); G.botTOs=[];
@@ -1183,11 +1227,6 @@ function endQuestion(aborted){
     c.send({t:'feedback', ok: !!(p.answered&&p.answered.choice===q.correct), pts:p.lastDelta,
             streak:p.streak, rank:rankMap.get(p)||ranked.length});
   });
-  if(aborted){
-    SFX.skip();
-    setTimeout(nextQuestion, 600);
-    return;
-  }
   const counts=[0,0,0,0];
   G.players.forEach(p=>{ if(p.answered) counts[p.answered.choice]++; });
   renderResults(counts);
@@ -1460,7 +1499,7 @@ function onServer(m){
   AudioCore.setMuted(!AudioCore.muted);
   $('#muteUse').setAttribute('href', AudioCore.muted?'#i-volx':'#i-vol');
 });
-/* timer click = clock runs out (normal flow); abort is space-only */
+/* timer click and space bar behave identically: the clock runs out */
 stageRoot.addEventListener('click',e=>{
   if(G.state==='active'){ if(e.target.closest('.timerwrap')) Timer.expire(); }
   else if(G.state==='intro'||G.state==='result'||G.state==='score'){ skipPhase(); }
