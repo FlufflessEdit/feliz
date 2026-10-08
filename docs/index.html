@@ -30,6 +30,7 @@ body{background-color:var(--bg);color:var(--ink);font-family:'Outfit','Segoe UI'
 
 /* ---------- Chrome (X / sound) ---------- */
 #chrome{position:fixed;top:14px;right:16px;z-index:90;display:flex;gap:10px}
+body.ingame #chrome{left:16px;right:auto}   /* during a question: controls sit in the left column */
 .rbtn{width:42px;height:42px;border-radius:12px;background:var(--panel2);display:grid;place-items:center;color:var(--ink);transition:background .15s,transform .15s}
 .rbtn:hover{background:var(--paper);transform:translateY(-1px)}
 .rbtn .ic{width:20px;height:20px}
@@ -83,14 +84,14 @@ body{background-color:var(--bg);color:var(--ink);font-family:'Outfit','Segoe UI'
 .chk input:checked::after{content:'';width:11px;height:11px;background:var(--invtx);clip-path:polygon(14% 44%,0 60%,40% 100%,100% 16%,84% 4%,38% 68%)}
 .botrow{display:flex;justify-content:center;padding-top:16px}
 
-/* ---------- Game ---------- */
+/* ---------- Game: left-to-right layout (1/4 question · 2/4 media · 1/4 answers) ---------- */
 #stageRoot{position:absolute;inset:0}
-.stage{position:absolute;inset:0;display:flex;flex-direction:column}
-.qhead{display:flex;align-items:flex-start;gap:3vw;padding:80px 2.5vw 6px 4vw}
-.qslot{flex:1;min-width:0}
-.qmeta{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);font-weight:600;margin-bottom:8px}
-.qtext{font-size:clamp(1.35rem,2.3vw,2.15rem);font-weight:700;line-height:1.18;overflow-wrap:break-word}
-.timerwrap{flex:none;width:100px;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:0;transition:opacity .5s .35s;position:relative}
+.stage{position:absolute;inset:0;display:grid;grid-template-columns:1fr 2fr 1fr;min-height:0}
+.qcol{display:flex;flex-direction:column;padding:64px 1.4vw 3vh 2.4vw;min-width:0;min-height:0}
+.qslot{flex:1;min-width:0;min-height:0}
+.qmeta{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);font-weight:600;margin-bottom:8px}
+.qtext{font-size:clamp(1.05rem,1.65vw,1.7rem);font-weight:700;line-height:1.22;overflow-wrap:break-word}
+.timerwrap{flex:none;position:relative;width:88px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;opacity:0;transition:opacity .5s .35s}
 .timerwrap.show{opacity:1}
 .tsvg{width:88px;height:88px;cursor:pointer}
 .tsvg .bgc{stroke:var(--ch)}
@@ -98,22 +99,21 @@ body{background-color:var(--bg);color:var(--ink);font-family:'Outfit','Segoe UI'
 .timerwrap.low .fgc{stroke:var(--c1)}
 .timerwrap.low .tsvg{animation:tpulse .9s infinite}
 @keyframes tpulse{50%{transform:scale(1.06)}}
-.tnum{position:absolute;top:27px;left:0;width:100%;text-align:center;font-family:var(--mono);font-weight:700;font-size:1.5rem;pointer-events:none}
+.tnum{position:absolute;top:27px;left:0;width:88px;text-align:center;font-family:var(--mono);font-weight:700;font-size:1.5rem;pointer-events:none}
 .tsub{font-family:var(--mono);font-size:.72rem;color:var(--ink2);pointer-events:none}
-.mediastage{display:flex;justify-content:center;padding:2.2vh 4vw;flex:none}
-.mediastage:empty{display:none;padding:0}
-.mediabox{position:relative;max-width:min(66vw,1000px);max-height:38vh;border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 18px 40px rgba(0,0,0,.35)}
-.mediabox img{display:block;max-width:100%;max-height:38vh;object-fit:contain}
-.mediabox iframe{display:block;height:38vh;aspect-ratio:16/9;max-width:min(66vw,1000px);border:0}
-.answrap{flex:1;display:flex;align-items:center;padding:1vh 4vw 5vh;min-height:0}
-.ansgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:980px;margin:0 auto}
-.ans{position:relative;border-radius:14px;min-height:clamp(64px,10.5vh,116px);display:flex;align-items:center;gap:18px;padding:16px 26px;color:#fff;font-weight:700;font-size:clamp(1rem,1.8vw,1.45rem);box-shadow:inset 0 -7px 0 rgba(0,0,0,.22);transform:translateY(150%) rotate(var(--tilt,2deg));opacity:0;transition:transform .6s cubic-bezier(.22,1.25,.42,1),opacity .4s ease}
+.mediastage{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;padding:1.5vh .5vw}
+.mediastage:empty{display:none}
+.mediabox{position:relative;max-width:100%;max-height:96vh;border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.mediabox img{display:block;max-width:100%;max-height:94vh;object-fit:contain}
+.mediabox iframe{display:block;width:100%;aspect-ratio:16/9;height:auto;max-height:88vh;border:0}
+.anscol{display:grid;grid-template-rows:repeat(4,1fr);gap:12px;padding:2vh 2vw 2vh 0;min-height:0}
+.ans{position:relative;border-radius:14px;min-height:0;display:flex;align-items:center;gap:14px;padding:12px 18px;color:#fff;font-weight:700;font-size:clamp(.88rem,1.3vw,1.25rem);box-shadow:inset 0 -6px 0 rgba(0,0,0,.22);transform:translateX(170%) rotate(var(--tilt,2deg));opacity:0;transition:transform .6s cubic-bezier(.22,1.25,.42,1),opacity .4s ease}
 .ans:nth-child(1){--tilt:2.5deg}.ans:nth-child(2){--tilt:-2.5deg}.ans:nth-child(3){--tilt:1.8deg}.ans:nth-child(4){--tilt:-1.8deg}
 .ans.in{transform:none;opacity:1}
 .ans.a1{background:var(--c1)}.ans.a2{background:var(--c2)}.ans.a3{background:var(--c3);color:#1b1b1b}.ans.a4{background:var(--c4)}
-.ans .ashape{width:30px;height:30px;flex:none;color:rgba(27,27,27,.5)}
+.ans .ashape{width:26px;height:26px;flex:none;color:rgba(27,27,27,.5)}
 .ans .atext{position:relative;z-index:2;overflow-wrap:break-word}
-.ans .cnt{position:absolute;top:8px;right:18px;z-index:2;font-family:var(--mono);font-weight:700;font-size:1.8rem;opacity:.95}
+.ans .cnt{position:absolute;top:8px;right:14px;z-index:2;font-family:var(--mono);font-weight:700;font-size:1.6rem;opacity:.95}
 /* wrong answers fall off screen, the correct one stays */
 .ans.fall{transform:translateY(190%) rotate(var(--tilt,2deg));opacity:0;transition:transform .75s cubic-bezier(.45,-.12,.8,.45) .05s,opacity .4s ease .32s}
 .ans.ok{animation:winpop .55s cubic-bezier(.3,1.5,.4,1) .5s}
@@ -252,9 +252,21 @@ body{background-color:var(--bg);color:var(--ink);font-family:'Outfit','Segoe UI'
 @keyframes tin{from{transform:translateY(10px);opacity:0}}
 #fx{position:fixed;inset:0;z-index:80;pointer-events:none}
 
-@media (max-width:760px){
+/* ---------- narrow screens: fall back to the stacked layout ---------- */
+@media (max-width:900px){
   #scr-lobby .lobby{grid-template-columns:1fr;overflow-y:auto}
-  .qhead{padding-top:72px}
+  .stage{display:flex;flex-direction:column}
+  .qcol{padding:72px 4vw 0}
+  .qslot{flex:none}
+  .qtext{font-size:clamp(1.2rem,3.2vw,1.7rem)}
+  .timerwrap{margin-top:14px;align-items:center;width:100px}
+  .tnum{width:100px}
+  .mediastage{padding:2vh 4vw;flex:none}
+  .mediabox{max-height:36vh}
+  .mediabox img{max-height:34vh}
+  .mediabox iframe{width:auto;height:34vh;max-width:100%}
+  .anscol{grid-template-rows:none;grid-template-columns:1fr 1fr;padding:1vh 4vw 4vh;gap:12px}
+  .ans{transform:translateY(150%) rotate(var(--tilt,2deg));min-height:88px;font-size:clamp(.9rem,3.4vw,1.1rem);padding:12px 20px}
 }
 </style>
 </head>
@@ -455,6 +467,7 @@ function updateChrome(){
   const isClient=document.body.classList.contains('client');
   const on=document.querySelector('#app .screen.on');
   const id=on?on.id:'';
+  document.body.classList.toggle('ingame', !isClient && id==='scr-game');
   $('#btnExit').hidden = isClient || !(id==='scr-lobby'||id==='scr-game');
 }
 
@@ -1063,11 +1076,12 @@ function nextQuestion(){
 function renderStage(q){
   Timer.stop();
   stageRoot.innerHTML='';
+  /* left column: question + timer | middle: media | right: answers */
   const stage=el('div','stage');
-  const qhead=el('div','qhead');
+  const qcol=el('div','qcol');
   qSlotEl=el('div','qslot');
   qSlotEl.appendChild(el('div','qmeta','Question '+(G.qi+1)+' of '+G.order.length));
-  qhead.appendChild(qSlotEl);
+  qcol.appendChild(qSlotEl);
   timerBoxEl=el('div','timerwrap');
   timerBoxEl.title='Click or press space: time runs out';
   timerBoxEl.innerHTML='<svg class="tsvg" viewBox="0 0 84 84">'
@@ -1075,8 +1089,8 @@ function renderStage(q){
     +'<circle class="fgc" cx="42" cy="42" r="36" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="0" transform="rotate(-90 42 42)"/></svg>'
     +'<div class="tnum"></div><div class="tsub"></div>';
   ringFgEl=timerBoxEl.querySelector('.fgc'); tNumEl=timerBoxEl.querySelector('.tnum'); tSubEl=timerBoxEl.querySelector('.tsub');
-  qhead.appendChild(timerBoxEl);
-  stage.appendChild(qhead);
+  qcol.appendChild(timerBoxEl);
+  stage.appendChild(qcol);
   const ms=el('div','mediastage');
   if(q.media){
     mediaBoxEl=el('div','mediabox');
@@ -1097,7 +1111,7 @@ function renderStage(q){
     ms.appendChild(mediaBoxEl);
   } else mediaBoxEl=null;
   stage.appendChild(ms);
-  const wrap=el('div','answrap'); const grid=el('div','ansgrid');
+  const anscol=el('div','anscol');
   const SHAPES=['s-tri','s-dia','s-cir','s-sqr'];
   answerEls=[];
   q.answers.forEach((a,i)=>{
@@ -1105,9 +1119,9 @@ function renderStage(q){
     b.innerHTML='<svg class="ashape"><use href="#'+SHAPES[i]+'"/></svg>'
       +'<span class="atext"></span><span class="cnt" hidden></span>';
     b.querySelector('.atext').textContent=a;
-    grid.appendChild(b); answerEls.push(b);
+    anscol.appendChild(b); answerEls.push(b);
   });
-  wrap.appendChild(grid); stage.appendChild(wrap);
+  stage.appendChild(anscol);
   stageRoot.appendChild(stage);
 }
 function playIntro(){
@@ -1129,7 +1143,7 @@ function playIntro(){
 function transitionIn(){
   G.state='flying';
   introOverlay.classList.add('off');
-  /* question: FLIP from the centre to the top */
+  /* question: FLIP from the centre of the screen to the top-left column */
   const r0=qText.getBoundingClientRect();
   qSlotEl.appendChild(qText);
   const r1=qText.getBoundingClientRect();
@@ -1143,7 +1157,7 @@ function transitionIn(){
   qText.style.transition='transform .78s cubic-bezier(.3,1,.3,1)';
   qText.style.transform='';
   qText.addEventListener('transitionend',()=>{ qText.style.transition=''; },{once:true});
-  /* medium grows out of the centre of the screen */
+  /* medium grows out of the centre into the big media zone */
   if(mediaBoxEl){
     const mr=mediaBoxEl.getBoundingClientRect();
     const mx=innerWidth/2-(mr.left+mr.width/2);
@@ -1156,7 +1170,8 @@ function transitionIn(){
     mediaBoxEl.style.transform='';
     mediaBoxEl.style.opacity='1';
   }
-  /* answers fly in staggered: top pair first, bottom pair while they move */
+  /* answers fly in staggered from the right: top pair first,
+     bottom pair joins while they are still moving                */
   answerEls.forEach((b,i)=>{ setTimeout(()=>b.classList.add('in'), 380+(i>1?230:0)); });
   setTimeout(beginAnswering, 1350);
 }
