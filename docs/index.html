@@ -115,7 +115,6 @@ body.ingame #chrome{left:16px;right:auto}
 .mediabox{position:relative;max-width:100%;max-height:96vh;border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 18px 40px rgba(0,0,0,.35)}
 .mediabox img{display:block;max-width:100%;max-height:94vh;object-fit:contain}
 .mediabox iframe{display:block;width:100%;aspect-ratio:16/9;height:auto;max-height:88vh;border:0}
-/* audio: shown as a small "now playing" card, plays automatically and loops */
 .mediabox.audiocard{display:flex;align-items:center;gap:16px;padding:18px 28px;max-height:none}
 .audiocard .eq{display:flex;align-items:flex-end;gap:3px;height:22px}
 .audiocard .eq i{width:4px;height:100%;background:var(--acc);border-radius:2px;transform-origin:bottom;animation:eq 1s infinite ease-in-out}
@@ -124,7 +123,8 @@ body.ingame #chrome{left:16px;right:auto}
 .audiocard .eq i:nth-child(4){animation-delay:.45s}
 @keyframes eq{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
 .audiocard span{color:var(--ink2);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
-.anscol{display:grid;grid-template-rows:repeat(4,1fr);gap:12px;padding:2vh 2vw 2vh 0;min-height:0}
+/* answer column: 2-4 rows; ordering questions sort themselves at reveal */
+.anscol{position:relative;display:grid;grid-template-rows:repeat(4,1fr);gap:12px;padding:2vh 2vw 2vh 0;min-height:0}
 .ans{position:relative;border-radius:14px;min-height:0;display:flex;align-items:center;gap:14px;padding:12px 18px;color:#fff;font-weight:700;font-size:clamp(.88rem,1.3vw,1.25rem);box-shadow:inset 0 -6px 0 rgba(0,0,0,.22);transform:translateX(170%) rotate(var(--tilt,2deg));opacity:0;transition:transform .6s cubic-bezier(.22,1.25,.42,1),opacity .4s ease}
 .ans:nth-child(1){--tilt:2.5deg}.ans:nth-child(2){--tilt:-2.5deg}.ans:nth-child(3){--tilt:1.8deg}.ans:nth-child(4){--tilt:-1.8deg}
 .ans.in{transform:none;opacity:1}
@@ -135,6 +135,11 @@ body.ingame #chrome{left:16px;right:auto}
 .ans.fall{transform:translateY(190%) rotate(var(--tilt,2deg));opacity:0;transition:transform .75s cubic-bezier(.45,-.12,.8,.45) .05s,opacity .4s ease .32s}
 .ans.ok{animation:winpop .55s cubic-bezier(.3,1.5,.4,1) .5s}
 @keyframes winpop{50%{transform:scale(1.04)}}
+/* ordering result: counter badge over the sorted cards */
+.ordercount{position:absolute;inset:0;display:grid;place-items:center;z-index:6;pointer-events:none}
+.ordercount .oc{background:rgba(27,27,27,.88);border-radius:18px;padding:16px 30px;text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.ordercount .oc b{display:block;font-family:var(--mono);font-weight:700;font-size:2.2rem;color:#fff}
+.ordercount .oc span{display:block;color:rgba(255,255,255,.65);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
 #introOverlay{position:absolute;inset:0;z-index:40;display:grid;place-items:center;background-color:var(--bg);background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.4px);background-size:26px 26px;transition:opacity .45s ease,visibility .45s}
 #introOverlay.off{opacity:0;visibility:hidden;pointer-events:none}
 .inwrap{display:flex;flex-direction:column;align-items:center;gap:26px;max-width:76vw;text-align:center}
@@ -232,6 +237,13 @@ body.ingame #chrome{left:16px;right:auto}
 .abtn.a1{background:var(--c1)}.abtn.a2{background:var(--c2)}.abtn.a3{background:var(--c3);color:#1b1b1b}.abtn.a4{background:var(--c4)}
 .abtn.lock{opacity:.45;pointer-events:none}
 .abtn.sel{outline:5px solid rgba(255,255,255,.9);outline-offset:-5px;opacity:1}
+/* ordering question: vertical sortable list + OK button */
+.cordlist{flex:1;display:flex;flex-direction:column;gap:10px;min-height:0;overflow-y:auto;padding:0 2px}
+.scard{position:relative;flex:none;min-height:58px;border-radius:14px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.22);display:flex;align-items:center;gap:12px;padding:12px 16px;color:#fff;font-weight:700;font-size:clamp(.95rem,4.5vw,1.1rem);transition:transform .18s ease;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.scard.dragging{transition:none;z-index:5;opacity:.92;box-shadow:0 14px 30px rgba(0,0,0,.5);cursor:grabbing}
+.scard.a1{background:var(--c1)}.scard.a2{background:var(--c2)}.scard.a3{background:var(--c3);color:#1b1b1b}.scard.a4{background:var(--c4)}
+.scard .pos{width:26px;height:26px;flex:none;border-radius:8px;background:rgba(0,0,0,.25);display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.85rem}
+.scard.a3 .pos{background:rgba(255,255,255,.35);color:#1b1b1b}
 .cqfoot{padding-top:10px;text-align:center;color:var(--ink2);font-size:.9rem;min-height:1.3em}
 #c-fb{align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
 #c-fb .fbi{width:104px;height:104px;border-radius:50%;display:grid;place-items:center}
@@ -438,7 +450,7 @@ body.ingame #chrome{left:16px;right:auto}
   </div>
   <div class="cscr" id="c-q">
     <div class="cqhead"><div class="qtext" id="cqText"></div><div class="cqimg" id="cqImg" hidden></div></div>
-    <div class="abtns" id="cqBtns"></div>
+    <div id="cqBtns" class="abtns"></div>
     <div class="cqfoot" id="cqFoot"></div>
   </div>
   <div class="cscr" id="c-fb">
@@ -471,7 +483,7 @@ body.ingame #chrome{left:16px;right:auto}
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js" defer></script>
 <script defer>
 'use strict';
-console.info('[Feliz] v2.8 · autoplaying video & music');
+console.info('[Feliz] v2.9 · real sorting questions + true/false without fillers');
 /* =============== helpers =============== */
 const $ = s => document.querySelector(s);
 function el(tag, cls, txt){ const d=document.createElement(tag); if(cls) d.className=cls; if(txt!=null) d.textContent=txt; return d; }
@@ -849,7 +861,7 @@ async function fetchKahootQuiz(uuid){
   }
 }
 
-/* ---- Kahoot JSON -> Feliz rows ---- */
+/* ---- Kahoot JSON -> Feliz rows / questions ---- */
 const KAHOOT_FILLERS=['Neither of these','Both of these','Cannot be determined'];
 const TXT_ORDER=' \u2013 Which order is correct?';
 const TXT_SELECTALL=' \u2013 Select all correct answers:';
@@ -904,11 +916,8 @@ function jsonSeconds(q){
   return Math.max(5,Math.min(180,Math.round(v)));
 }
 
-/* media objects carry kind/src (+ start/end for videos) and can be passed
-   straight through buildQuiz into the game                              */
 function jsonMedia(q){
   if(!q||typeof q!=='object') return null;
-  /* attached audio / music */
   for(const key of ['audio','music']){
     const a=q[key];
     if(a&&typeof a==='object'&&(a.url||a.id)){
@@ -916,7 +925,6 @@ function jsonMedia(q){
     }
     if(typeof a==='string'&&a.trim()) return {kind:'audio', src:a.trim()};
   }
-  /* video (YouTube incl. start/end) */
   const v=q.video;
   if(v&&typeof v==='object'){
     const id=String(v.id||'').trim();
@@ -929,7 +937,6 @@ function jsonMedia(q){
     }
     if(id) return {kind:'embed', src:String(v.url||v.src||'')};
   }
-  /* image */
   let img=String(q.image||'').trim();
   if(!img&&q.imageMetadata&&typeof q.imageMetadata==='object'){
     img=String(q.imageMetadata.url||'').trim();
@@ -952,7 +959,28 @@ function typeAnswerCorrect(q, choices){
 
 function dedupe(arr){ return [...new Set(arr)]; }
 
-function kahootToRows(data){
+/* ordering detection: returns {items,text,time,media} or null.
+   Used for the real sorting questions (JSON drop) AND the CSV
+   multiple-choice fallback (skipOrder=true lets the JSON path handle it) */
+function orderInfo(q){
+  const type=String((q&&q.type)||'quiz').toLowerCase();
+  const choices=extractChoices(q);
+  const corr=choices.filter(c=>c.correct).length;
+  const typeSaysOrder=ORDER_RE.test(type);
+  const structSaysOrder=!typeSaysOrder && !ANSWER_TYPES.includes(type)
+                        && type!=='true_false' && !POLL_RE.test(type)
+                        && corr===0 && choices.length>=2;
+  if(!(typeSaysOrder||structSaysOrder)) return null;
+  let items;
+  if(choices.every(c=>c.order!=null)){
+    items=choices.slice().sort((a,b)=>a.order-b.order).map(c=>c.text);
+  } else items=choices.map(c=>c.text);
+  items=dedupe(items);
+  if(items.length<2) return null;
+  return {items, text:String((q&&(q.question||q.title))||'').trim(), time:jsonSeconds(q), media:jsonMedia(q)};
+}
+
+function kahootToRows(data, skipOrder){
   const rows=[], skipped=[];
   getQuestions(data).forEach((q,i)=>{
     const no='Q'+(i+1);
@@ -964,22 +992,15 @@ function kahootToRows(data){
     const wrong=choices.filter(c=>!c.correct).map(c=>c.text);
     const time=jsonSeconds(q), media=jsonMedia(q);
 
-    const typeSaysOrder=ORDER_RE.test(type);
-    const structSaysOrder=!typeSaysOrder && !ANSWER_TYPES.includes(type)
-                          && type!=='true_false' && !POLL_RE.test(type)
-                          && corr.length===0 && choices.length>=2;
-    if(typeSaysOrder||structSaysOrder){
-      let items;
-      if(choices.every(c=>c.order!=null)){
-        items=choices.slice().sort((a,b)=>a.order-b.order).map(c=>c.text);
-      } else items=choices.map(c=>c.text);
-      if(structSaysOrder) console.info('[Feliz] '+no+': no option marked correct – treated as an ordering question (type "'+type+'")');
-      if(items.length<2){ skipped.push(no+': ordering question with fewer than 2 items'); return; }
+    const oi=orderInfo(q);
+    if(oi){
+      if(skipOrder) return;   /* converted as a real sorting question elsewhere */
+      if(choices.length<2){ skipped.push(no+': ordering question with fewer than 2 items'); return; }
       const join=a=>a.join(' \u2192 ');
-      const seq=join(items);
-      const swap=items.slice(); [swap[0],swap[1]]=[swap[1],swap[0]];
-      const perms=[join(items.slice(1).concat(items.slice(0,1)))];
-      if(items.length>2) perms.push(join(items.slice(2).concat(items.slice(0,2))));
+      const seq=join(oi.items);
+      const swap=oi.items.slice(); [swap[0],swap[1]]=[swap[1],swap[0]];
+      const perms=[join(oi.items.slice(1).concat(oi.items.slice(0,1)))];
+      if(oi.items.length>2) perms.push(join(oi.items.slice(2).concat(oi.items.slice(0,2))));
       perms.push(join(swap));
       let w=dedupe(perms.filter(p=>p!==seq)).slice(0,3);
       while(w.length<1) w.push(KAHOOT_FILLERS[w.length]);
@@ -1023,7 +1044,7 @@ function kahootToRows(data){
 }
 
 function convertKahootQuiz(data){
-  const {rows, skipped}=kahootToRows(data);
+  const {rows, skipped}=kahootToRows(data,false);
   if(!rows.length){
     toast('No convertible quiz questions found in that JSON.','err');
     return;
@@ -1051,11 +1072,22 @@ async function loadKahootJsonFile(file){
   let data;
   try{ data=JSON.parse(text); }
   catch(e){ throw new Error('That .json file is not valid JSON.'); }
-  const {rows, skipped}=kahootToRows(data);
-  if(!rows.length) throw new Error('No convertible quiz questions found in that JSON.');
-  G.quiz=buildQuiz([TEMPLATE[0].slice(), ...rows.map(r=>r.slice())]);
+  /* multiple-choice part */
+  const {rows, skipped}=kahootToRows(data,true);
+  const questions=rows.length?buildQuiz([TEMPLATE[0].slice(), ...rows.map(r=>r.slice())]).questions:[];
+  /* real sorting questions */
+  getQuestions(data).forEach(q=>{
+    const oi=orderInfo(q);
+    if(!oi) return;
+    const display=shuffle(oi.items.slice());
+    const correctOrder=oi.items.map(it=>display.indexOf(it));
+    questions.push({ text:oi.text, time:oi.time, media:oi.media, type:'order',
+                     answers:display, correctOrder, correct:-1 });
+  });
+  if(!questions.length) throw new Error('No convertible quiz questions found in that JSON.');
+  G.quiz={questions, skipped:skipped.length, source:'kahoot'};
   SFX.join();
-  toast('Kahoot JSON loaded: '+G.quiz.questions.length+' questions'+(skipped.length?' · '+skipped.length+' skipped':''),'ok');
+  toast('Kahoot JSON loaded: '+questions.length+' questions'+(skipped.length?' · '+skipped.length+' skipped':''),'ok');
   if(skipped.length) console.info('[Feliz] skipped Kahoot questions:\n'+skipped.join('\n'));
   enterLobby();
 }
@@ -1103,8 +1135,16 @@ function detectMedia(v){
   if(/^https?:\/\//i.test(v)) return {kind:'img',src:v};
   return null;
 }
+function stripFillers(wrongs){
+  /* removes the old filler texts (from CSVs converted before v2.7),
+     but only if at least one real wrong answer remains              */
+  if(wrongs.length>1){
+    const real=wrongs.filter(w=>!KAHOOT_FILLERS.includes(w));
+    if(real.length>=1) return real;
+  }
+  return wrongs;
+}
 function buildQuiz(rawRows){
-  /* media cells may already be objects (Kahoot JSON) – keep them intact */
   let rows=(rawRows||[]).map(r=>(r||[]).map(c=>(c&&typeof c==='object')?c:(c==null?'':String(c))));
   rows=rows.filter(r=>r.some(c=>String(typeof c==='object'?'x':c).trim()!==''));
   if(!rows.length) throw new Error('The spreadsheet is empty.');
@@ -1153,7 +1193,7 @@ function buildQuiz(rawRows){
     const text=cell(qI);
     let correct='', wrongs=[];
     if(numRef){
-      wrongs=wrongI.map(cell).filter(w=>w!=='');
+      wrongs=stripFillers(wrongI.map(cell).filter(w=>w!==''));
       const v=cell(okI);
       if(!/^\d+(?:\s*[,;|]\s*\d+)*$/.test(v)){ skipped++; continue; }
       const nums=(v.match(/\d+/g)||[]).map(Number);
@@ -1162,7 +1202,7 @@ function buildQuiz(rawRows){
       wrongs=wrongs.filter((_,i)=>i!==nums[0]-1);
     } else {
       correct=cell(okI);
-      wrongs=wrongI.map(cell).filter(w=>w!=='');
+      wrongs=stripFillers(wrongI.map(cell).filter(w=>w!==''));
     }
     if(!text||!correct||wrongs.length<1){ skipped++; continue; }
     let t=parseFloat(cell(timeI).replace(',','.'));
@@ -1209,7 +1249,7 @@ const G={ quiz:null, code:'', joinURL:'', peer:null, players:[], started:false,
           state:'idle', order:[], qi:-1, q:null, qT0:0, phaseTO:null, phaseNext:null, botTOs:[] };
 let seq=0;
 const qText=document.createElement('div'); qText.className='qtext';
-let qSlotEl=null, timerBoxEl=null, ringFgEl=null, tNumEl=null, tSubEl=null, mediaBoxEl=null, answerEls=[];
+let qSlotEl=null, timerBoxEl=null, ringFgEl=null, tNumEl=null, tSubEl=null, mediaBoxEl=null, answerEls=[], anscolEl=null;
 const stageRoot=$('#stageRoot'), introOverlay=$('#introOverlay'), introLabel=$('#introLabel'),
       introSlot=$('#introSlot'), introBarI=$('#introBarI'),
       phaseBarEl=$('#phaseBar'), phaseBarI=$('#phaseBarI');
@@ -1310,7 +1350,8 @@ function handleConn(conn){
       } else if(m.t==='answer'){
         const p=conn.playerRef; if(!p) return;
         if(m.i!==G.qi) return;
-        recordAnswer(p, m.c|0, Number(m.ms)||0);
+        if(Array.isArray(m.order)) recordAnswer(p, m.order.map(Number), Number(m.ms)||0);
+        else recordAnswer(p, m.c|0, Number(m.ms)||0);
       }
     }catch(e){}
   });
@@ -1378,7 +1419,7 @@ function renderStage(q){
   const stage=el('div','stage');
   const qcol=el('div','qcol');
   qSlotEl=el('div','qslot');
-  qSlotEl.appendChild(el('div','qmeta','Question '+(G.qi+1)+' of '+G.order.length));
+  qSlotEl.appendChild(el('div','qmeta',q.type==='order'?'Sorting question':'Question '+(G.qi+1)+' of '+G.order.length));
   qcol.appendChild(qSlotEl);
   timerBoxEl=el('div','timerwrap');
   timerBoxEl.title='Click or press space: time runs out';
@@ -1404,13 +1445,11 @@ function renderStage(q){
         src=q.media.src;
         if(!/autoplay/i.test(src)) src+=(src.includes('?')?'&':'?')+'autoplay=1';
       }
-      /* load only when the question is revealed, so autoplay fires on time */
       f.dataset.src=src;
       f.allow='autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       f.allowFullscreen=true;
       mediaBoxEl.appendChild(f);
     } else if(q.media.kind==='audio'){
-      /* attached music: plays automatically and loops for the question */
       mediaBoxEl.classList.add('audiocard');
       mediaBoxEl.innerHTML='<div class="eq"><i></i><i></i><i></i><i></i></div><span>Audio</span>';
       const au=document.createElement('audio');
@@ -1431,17 +1470,18 @@ function renderStage(q){
   answerEls=[];
   q.answers.forEach((a,i)=>{
     const b=el('div','ans a'+(i+1));
-    b.innerHTML='<svg class="ashape"><use href="#'+SHAPES[i]+'"/></svg>'
-      +'<span class="atext"></span><span class="cnt" hidden></span>';
+    if(q.type!=='order') b.innerHTML='<svg class="ashape"><use href="#'+SHAPES[i]+'"/></svg>';
+    b.innerHTML+='<span class="atext"></span><span class="cnt" hidden></span>';
     b.querySelector('.atext').textContent=a;
     anscol.appendChild(b); answerEls.push(b);
   });
   stage.appendChild(anscol);
+  anscolEl=anscol;
   stageRoot.appendChild(stage);
 }
 function playIntro(){
   G.state='intro'; SFX.intro();
-  introLabel.textContent='Question '+(G.qi+1)+' of '+G.order.length;
+  introLabel.textContent=(G.q.type==='order'?'Sorting question ':'Question ')+(G.qi+1)+' of '+G.order.length;
   qText.textContent=G.q.text;
   introSlot.appendChild(qText);
   introOverlay.style.transition='none';
@@ -1480,11 +1520,9 @@ function transitionIn(){
     mediaBoxEl.style.transition='transform .95s cubic-bezier(.22,1.35,.4,1) .1s, opacity .45s ease .1s';
     mediaBoxEl.style.transform='';
     mediaBoxEl.style.opacity='1';
-    /* start playback exactly when the medium appears */
     const fr=mediaBoxEl.querySelector('iframe');
     if(fr&&fr.dataset.src){
       fr.src=fr.dataset.src;
-      /* YouTube starts muted (autoplay policy) – try to unmute right after */
       fr.addEventListener('load',()=>{
         setTimeout(()=>{
           try{
@@ -1515,6 +1553,7 @@ function beginAnswering(){
 function broadcastQuestion(){
   const q=G.q;
   conns().forEach(c=>c.send({t:'question', i:G.qi, n:G.order.length, text:q.text, ans:q.answers, time:q.time,
+    type:q.type==='order'?'order':null,
     media:(q.media&&q.media.kind==='img')?{src:q.media.src}:null}));
 }
 function scheduleBots(){
@@ -1525,6 +1564,12 @@ function scheduleBots(){
     G.botTOs.push(setTimeout(()=>{
       if(G.state!=='active'||p.answered) return;
       const ok=Math.random()<p.skill;
+      if(q.type==='order'){
+        let order=q.correctOrder.slice();
+        if(!ok) order=shuffle(order.slice());
+        recordAnswer(p, order, Math.min(performance.now()-G.qT0, q.time*1000));
+        return;
+      }
       let choice=q.correct;
       if(!ok){ const wrongs=[...Array(n).keys()].filter(i=>i!==q.correct); choice=rnd(wrongs); }
       recordAnswer(p, choice, Math.min(performance.now()-G.qT0, q.time*1000));
@@ -1536,9 +1581,9 @@ function updateTSub(){
   const done=alive.filter(p=>p.answered).length;
   tSubEl.textContent=done+'/'+alive.length;
 }
-function recordAnswer(p, choice, ms){
+function recordAnswer(p, sel, ms){
   if(G.state!=='active'||p.answered) return;
-  p.answered={ choice, ms:Math.max(0,Math.min(ms, G.q.time*1000)) };
+  p.answered={ sel, ms:Math.max(0,Math.min(ms, G.q.time*1000)) };
   updateTSub();
   const alive=G.players.filter(x=>x.alive);
   if(alive.length && alive.every(x=>x.answered)){
@@ -1554,27 +1599,30 @@ function endQuestion(){
   const q=G.q, limitMs=q.time*1000;
   G.players.forEach(p=>{
     const a=p.answered; let ok=false, pts=0, bonus=0;
-    if(a){ ok = a.choice===q.correct;
+    if(a){
+      ok = q.type==='order' ? String(a.sel)===String(q.correctOrder) : a.sel===q.correct;
       if(ok){ pts=Math.round(1000*(1-(a.ms/limitMs)/2)); bonus=Math.min(Math.max(p.streak,0)*100,500); } }
     p.lastDelta = ok? pts+bonus : 0;
     p.score += p.lastDelta;
     p.streak = ok ? p.streak+1 : 0;
   });
+  const correctCount=G.players.filter(p=>p.lastDelta>0).length;
   const ranked=[...G.players].sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
   const rankMap=new Map(ranked.map((p,i)=>[p,i+1]));
   conns().forEach(c=>{
     const p=c.playerRef; if(!p) return;
-    c.send({t:'feedback', ok: !!(p.answered&&p.answered.choice===q.correct), pts:p.lastDelta,
+    c.send({t:'feedback', ok: p.lastDelta>0, pts:p.lastDelta,
             streak:p.streak, rank:rankMap.get(p)||ranked.length});
   });
-  const counts=new Array(G.q.answers.length).fill(0);
-  G.players.forEach(p=>{ if(p.answered) counts[p.answered.choice]++; });
-  renderResults(counts);
+  const counts=new Array(q.answers.length).fill(0);
+  G.players.forEach(p=>{ if(p.answered&&q.type!=='order') counts[p.answered.sel]++; });
+  renderResults(counts, correctCount);
   SFX.reveal();
   phase(3000, showScoreboard);
 }
-function renderResults(counts){
+function renderResults(counts, correctCount){
   const q=G.q;
+  if(q.type==='order'){ renderResultsOrder(correctCount); return; }
   answerEls.forEach((b,i)=>{
     if(i===q.correct){
       b.classList.add('ok');
@@ -1586,6 +1634,31 @@ function renderResults(counts){
       setTimeout(()=>b.classList.add('fall'), 140+Math.random()*160);
     }
   });
+}
+/* ordering result: cards FLIP into the correct order + counter badge */
+function renderResultsOrder(correctCount){
+  const q=G.q;
+  const rects=new Map();
+  answerEls.forEach(b=>rects.set(b,b.getBoundingClientRect()));
+  q.correctOrder.forEach(idx=>anscolEl.appendChild(answerEls[idx]));
+  answerEls.forEach(b=>{
+    const r0=rects.get(b), r1=b.getBoundingClientRect();
+    b.style.transition='none';
+    b.style.transform='translateY('+(r0.top-r1.top)+'px)';
+  });
+  void anscolEl.offsetWidth;
+  answerEls.forEach(b=>{
+    b.style.transition='transform .7s cubic-bezier(.3,1,.3,1)';
+    b.style.transform='';
+    b.addEventListener('transitionend',()=>{ b.style.transition=''; },{once:true});
+  });
+  setTimeout(()=>{
+    const ov=el('div','ordercount');
+    ov.innerHTML='<div class="oc"><b>0</b><span>correct orders</span></div>';
+    anscolEl.appendChild(ov);
+    const total=G.players.filter(p=>p.alive).length;
+    countUp(ov.querySelector('b'), correctCount, 600, v=>String(Math.round(v))+' / '+total);
+  }, 520);
 }
 function showScoreboard(){
   G.state='score'; SFX.score();
@@ -1715,6 +1788,57 @@ function connectClient(){
     if(C.peer){ try{C.peer.destroy()}catch(_){} } C.peer=null;
   });
 }
+/* touch-friendly drag & drop sortable list for ordering questions */
+function makeSortable(list, onChange){
+  let drag=null;
+  list.querySelectorAll('.scard').forEach(card=>{
+    card.addEventListener('pointerdown',e=>{
+      if(drag||list.dataset.locked) return;
+      const c=e.target.closest('.scard'); if(!c) return;
+      e.preventDefault();
+      drag={el:c, y0:e.clientY, dy:0, p:[...list.children].indexOf(c), slot:0};
+      c.classList.add('dragging');
+      try{c.setPointerCapture(e.pointerId);}catch(_){}
+    });
+    card.addEventListener('pointermove',e=>{
+      if(!drag||drag.el!==card) return;
+      drag.dy=e.clientY-drag.y0;
+      card.style.transform='translateY('+drag.dy+'px)';
+      const ch=card.offsetHeight, gap=10;
+      const others=[...list.children].filter(x=>x!==card);
+      const center=card.offsetTop+ch/2+drag.dy;
+      let slot=others.length;
+      for(let i=0;i<others.length;i++){
+        const o=others[i];
+        if(center<o.offsetTop+o.offsetHeight/2){ slot=i; break; }
+      }
+      drag.slot=slot;
+      others.forEach((o,i)=>{
+        let shift=0;
+        if(i>=drag.p&&i<slot) shift=-(ch+gap);
+        else if(i>=slot&&i<drag.p) shift=ch+gap;
+        o.style.transform=shift?'translateY('+shift+'px)':'';
+      });
+    });
+    const up=()=>{
+      if(!drag||drag.el!==card) return;
+      const {el,slot}=drag; drag=null;
+      el.classList.remove('dragging');
+      el.style.transform='';
+      const others=[...list.children].filter(x=>x!==el);
+      const order=others.slice();
+      order.splice(slot,0,el);
+      order.forEach(x=>list.appendChild(x));
+      [...list.children].forEach(x=>x.style.transform='');
+      [...list.children].forEach((x,i)=>{
+        const pos=x.querySelector('.pos'); if(pos) pos.textContent=String(i+1);
+      });
+      onChange&&onChange();
+    };
+    card.addEventListener('pointerup',up);
+    card.addEventListener('pointercancel',up);
+  });
+}
 function onServer(m){
   if(!m||typeof m!=='object') return;
   switch(m.t){
@@ -1734,24 +1858,58 @@ function onServer(m){
       const img=$('#cqImg');
       if(m.media&&m.media.src){ img.hidden=false; img.innerHTML=''; const im=document.createElement('img'); im.src=m.media.src; img.appendChild(im); }
       else img.hidden=true;
-      const btns=$('#cqBtns'); btns.innerHTML='';
-      btns.style.gridTemplateColumns=(m.ans.length===2)?'1fr':'1fr 1fr';
-      const SHAPES=['s-tri','s-dia','s-cir','s-sqr'];
-      m.ans.forEach((a,i)=>{
-        const b=el('button','abtn a'+(i+1));
-        b.innerHTML='<svg><use href="#'+SHAPES[i]+'"/></svg>';
-        b.appendChild(el('span','',a));
-        b.addEventListener('click',()=>{
+      const btns=$('#cqBtns');
+      if(m.type==='order'){
+        /* sorting question: vertical draggable cards + OK button */
+        btns.className='cordlist';
+        btns.style.gridTemplateColumns='';
+        btns.innerHTML='';
+        m.ans.forEach((a,i)=>{
+          const b=el('div','scard a'+(i+1));
+          b.dataset.idx=i;
+          b.innerHTML='<span class="pos"></span><span class="txt"></span>';
+          b.querySelector('.txt').textContent=a;
+          btns.appendChild(b);
+        });
+        [...btns.children].forEach((x,i)=>{
+          x.querySelector('.pos').textContent=String(i+1);
+        });
+        const foot=$('#cqFoot');
+        foot.innerHTML='';
+        const okBtn=el('button','pill','OK');
+        okBtn.addEventListener('click',()=>{
           if(C.answered) return;
           C.answered=true; SFX.select();
-          [...btns.children].forEach(x=>x.classList.add('lock'));
-          b.classList.remove('lock'); b.classList.add('sel');
-          $('#cqFoot').textContent='Answer sent – waiting for the others …';
-          C.conn.send({t:'answer', i:C.qi, c:i, ms:performance.now()-C.qT0});
+          btns.dataset.locked='1';
+          okBtn.disabled=true;
+          const order=[...btns.children].map(x=>+x.dataset.idx);
+          foot.textContent='Order sent – waiting for the others …';
+          C.conn.send({t:'answer', i:C.qi, order, ms:performance.now()-C.qT0});
         });
-        btns.appendChild(b);
-      });
-      $('#cqFoot').textContent='';
+        foot.appendChild(okBtn);
+        makeSortable(btns);
+      } else {
+        /* multiple choice: 2 options stack (true/false), 3-4 use a 2x2 grid */
+        btns.className='abtns';
+        btns.style.gridTemplateColumns=(m.ans.length===2)?'1fr':'1fr 1fr';
+        btns.innerHTML='';
+        const SHAPES=['s-tri','s-dia','s-cir','s-sqr'];
+        m.ans.forEach((a,i)=>{
+          const b=el('button','abtn a'+(i+1));
+          b.innerHTML='<svg><use href="#'+SHAPES[i]+'"/></svg>';
+          b.appendChild(el('span','',a));
+          b.addEventListener('click',()=>{
+            if(C.answered) return;
+            C.answered=true; SFX.select();
+            [...btns.children].forEach(x=>x.classList.add('lock'));
+            b.classList.remove('lock'); b.classList.add('sel');
+            $('#cqFoot').textContent='Answer sent – waiting for the others …';
+            C.conn.send({t:'answer', i:C.qi, c:i, ms:performance.now()-C.qT0});
+          });
+          btns.appendChild(b);
+        });
+        $('#cqFoot').textContent='';
+      }
       showC('c-q'); SFX.intro(); break;
     }
     case 'feedback':{
