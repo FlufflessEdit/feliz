@@ -224,6 +224,84 @@
         height: 17px;
       }
 
+      /* ---------- Kahoot import: flip card ---------- */
+      /* clicking the button flips it bottom-over-top by 180°; the back holds
+   the input field that accepts a Kahoot URL or pasted quiz JSON        */
+      .flipwrap {
+        width: 300px;
+        height: 44px;
+        perspective: 800px;
+      }
+      .flipcard {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.65s cubic-bezier(0.3, 1.2, 0.4, 1);
+      }
+      .flipcard.flipped {
+        transform: rotateX(180deg);
+      }
+      .flipface {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+      .flipfront .ghost {
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+      }
+      .flipback {
+        transform: rotateX(180deg);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--panel2);
+        border-radius: 10px;
+        padding: 5px 6px;
+      }
+      .flipback input {
+        flex: 1;
+        min-width: 0;
+        background: var(--paper);
+        border: 1px solid var(--ch);
+        border-radius: 8px;
+        color: var(--ink);
+        padding: 8px 10px;
+        font: inherit;
+        font-size: 0.85rem;
+        outline: none;
+      }
+      .flipback input:focus {
+        border-color: var(--acc);
+      }
+      .flipback input::placeholder {
+        color: var(--ink2);
+      }
+      .kbtn {
+        width: 34px;
+        height: 34px;
+        flex: none;
+        border-radius: 8px;
+        background: var(--paper);
+        display: grid;
+        place-items: center;
+        transition: background 0.15s;
+      }
+      .kbtn:hover {
+        background: var(--ch);
+      }
+      .kbtn:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .kbtn .ic {
+        width: 16px;
+        height: 16px;
+      }
+
       /* ---------- Lobby ---------- */
       #scr-lobby .lobby {
         flex: 1;
@@ -1421,6 +1499,9 @@
           font-size: clamp(0.9rem, 3.4vw, 1.1rem);
           padding: 12px 20px;
         }
+        .flipwrap {
+          width: min(300px, 84vw);
+        }
       }
     </style>
   </head>
@@ -1579,6 +1660,9 @@
       <symbol id="i-upload" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 15.5V4M7 9l5-5 5 5M4.5 19.5h15" />
       </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4v11M7 10l5 5 5-5M4.5 19.5h15" />
+      </symbol>
       <symbol id="i-copy" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
         <path d="M5.5 15.5h-1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
@@ -1614,16 +1698,31 @@
           <div class="drop" id="dropzone">
             <svg class="ic"><use href="#i-upload" /></svg>
             <b>Drop your spreadsheet here</b>
-            <small>CSV or Excel (.xlsx) – or</small>
+            <small>CSV, Excel (.xlsx) or Kahoot JSON – or</small>
             <button class="ghost" id="btnBrowse">Browse file</button>
           </div>
           <div class="uprow">
             <button class="ghost" id="btnTemplate">
               <svg class="ic"><use href="#i-copy" /></svg>Download CSV template
             </button>
-            <button class="ghost" id="btnDemo">
-              <svg class="ic"><use href="#i-play" /></svg>Try the sample quiz
-            </button>
+            <div class="flipwrap" id="flipWrap">
+              <div class="flipcard" id="flipCard">
+                <div class="flipface flipfront">
+                  <button class="ghost" id="btnImportKahoot">
+                    <svg class="ic"><use href="#i-download" /></svg>Import from Kahoot
+                  </button>
+                </div>
+                <div class="flipface flipback">
+                  <input id="kahootInput" placeholder="Kahoot link or quiz JSON" spellcheck="false" autocomplete="off" />
+                  <button class="kbtn" id="btnKahootGo" title="Fetch and convert">
+                    <svg class="ic"><use href="#i-play" /></svg>
+                  </button>
+                  <button class="kbtn" id="btnKahootX" title="Back">
+                    <svg class="ic"><use href="#i-x" /></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1775,13 +1874,13 @@
     </div>
     <canvas id="fx"></canvas>
     <div id="toasts"></div>
-    <input type="file" id="fileInput" hidden accept=".csv,.tsv,.txt,.xlsx,.xls,.ods" />
+    <input type="file" id="fileInput" hidden accept=".csv,.tsv,.txt,.xlsx,.xls,.ods,.json" />
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js" defer></script>
     <script defer>
       "use strict";
-      console.info("[Feliz] v2.1 · quiz import with Kahoot template support");
+      console.info("[Feliz] v2.3 · Kahoot JSON drop + paste auto-convert");
       /* =============== helpers =============== */
       const $ = (s) => document.querySelector(s);
       function el(tag, cls, txt) {
@@ -2298,7 +2397,7 @@
         return s;
       }
 
-      /* =============== sample data =============== */
+      /* =============== template data =============== */
       const TRI_SVG =
         "data:image/svg+xml;charset=utf-8," +
         encodeURIComponent(
@@ -2318,16 +2417,240 @@
         ["How big is angle \u03B1 in the triangle?", "75\u00B0", "65\u00B0", "85\u00B0", "55\u00B0", 25, TRI_SVG],
         ["What is 12 \u00D7 12?", "144", "124", "132", "148", 10, ""],
       ];
-      const SAMPLE = [
-        ["Question", "Correct Answer", "Wrong Answer 1", "Wrong Answer 2", "Wrong Answer 3", "Time in seconds", "Image / Video (optional)"],
-        ["How many federal states does Germany have?", "16", "14", "12", "18", 20, ""],
-        ["Which element has the chemical symbol \u201CFe\u201D?", "Iron", "Fluorine", "Francium", "Phosphorus", 15, ""],
-        ["What is 7 \u00D7 8?", "56", "54", "63", "48", 10, ""],
-        ["How big is angle \u03B1 in the triangle?", "75\u00B0", "65\u00B0", "85\u00B0", "55\u00B0", 25, TRI_SVG],
-        ["How many hearts does an octopus have?", "3", "1", "2", "4", 15, ""],
-        ["Which land animal reaches the highest top speed?", "Cheetah", "Springbok", "Lion", "Horse", 20, ""],
-        ["What is the capital of Australia?", "Canberra", "Sydney", "Melbourne", "Perth", 20, ""],
-      ];
+
+      /* =============== Kahoot import (flip card + JSON drop) =============== */
+      /* The button flips bottom-over-top; the back holds an input that accepts
+   either a Kahoot URL (quiz id is extracted and fetched) or the quiz JSON
+   pasted directly (fallback when Kahoot's CORS policy blocks the fetch).
+   Pasting JSON converts immediately; .json files can also be dragged onto
+   the dropzone and load the quiz directly.                                */
+      const flipCard = $("#flipCard"),
+        kahootInput = $("#kahootInput"),
+        kahootGo = $("#btnKahootGo");
+
+      $("#btnImportKahoot").addEventListener("click", () => {
+        flipCard.classList.add("flipped");
+        setTimeout(() => kahootInput.focus(), 380);
+      });
+      $("#btnKahootX").addEventListener("click", () => {
+        flipCard.classList.remove("flipped");
+        kahootInput.value = "";
+      });
+      kahootInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") startKahootImport();
+      });
+      kahootGo.addEventListener("click", startKahootImport);
+      /* pasting JSON converts immediately – no extra Enter needed */
+      kahootInput.addEventListener("paste", () => {
+        setTimeout(() => {
+          const v = kahootInput.value.trim();
+          if (v.startsWith("{") || v.startsWith("[")) startKahootImport();
+        }, 60);
+      });
+
+      function startKahootImport() {
+        const v = kahootInput.value.trim();
+        if (!v) {
+          toast("Paste a Kahoot link or the quiz JSON first.", "err");
+          return;
+        }
+        if (v[0] === "{" || v[0] === "[") {
+          let data = null;
+          try {
+            data = JSON.parse(v);
+          } catch (e) {
+            toast("That text is not valid JSON.", "err");
+            return;
+          }
+          convertKahootQuiz(data);
+          return;
+        }
+        const uuid = extractKahootUuid(v);
+        if (!uuid) {
+          toast("No Kahoot quiz ID found in that input.", "err");
+          return;
+        }
+        fetchKahootQuiz(uuid);
+      }
+
+      function extractKahootUuid(s) {
+        const m = String(s).match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i) || String(s).match(/[0-9a-f]{32}/i);
+        return m ? m[0] : null;
+      }
+
+      async function fetchKahootQuiz(uuid) {
+        const url = "https://create.kahoot.it/rest/kahoots/" + uuid + "?includeKahoot=true";
+        kahootGo.disabled = true;
+        toast("Fetching the quiz from create.kahoot.it …");
+        try {
+          const res = await fetch(url, { credentials: "include" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          convertKahootQuiz(data);
+        } catch (e) {
+          /* Browsers block this cross-site request unless Kahoot allows it
+       (CORS). Fallback: open the JSON in a new tab – the browser session
+       is logged in there – copy everything (Ctrl+A, Ctrl+C), switch back
+       and paste it into the field; it converts automatically.            */
+          const win = window.open(url, "_blank");
+          if (win) {
+            toast(
+              "Kahoot blocked the automatic download. The quiz JSON opened in a new tab: copy everything (Ctrl+A, Ctrl+C), switch back and just paste it here.",
+              "err",
+            );
+          } else {
+            kahootInput.value = url;
+            toast(
+              "Kahoot blocked the download and the pop-up was blocked too. Open the URL now in the field in a new tab, copy the JSON and paste it back here.",
+              "err",
+            );
+          }
+          /* put the cursor back into the field as soon as this window is focused
+       again, so a single Ctrl+V finishes the import                       */
+          const refocus = () => {
+            kahootInput.focus();
+            window.removeEventListener("focus", refocus);
+          };
+          window.addEventListener("focus", refocus);
+        } finally {
+          kahootGo.disabled = false;
+        }
+      }
+
+      /* ---- Kahoot JSON -> Feliz rows (port of kahoot2feliz.py) ---- */
+      const KAHOOT_TYPES_OK = ["quiz", "multiple_select", "quiz_multiple_select", "multiple_select_quiz", "true_false"];
+
+      function getQuestions(data) {
+        if (Array.isArray(data)) {
+          if (data.length && data.every((x) => x && typeof x === "object" && ("choices" in x || "question" in x))) return data;
+          const out = [];
+          for (const x of data) {
+            if (x && typeof x === "object") out.push(...getQuestions(x));
+          }
+          return out;
+        }
+        if (data && typeof data === "object") {
+          if (Array.isArray(data.questions)) return data.questions;
+          for (const key of ["kahoot", "quiz", "data", "entity"]) {
+            if (data[key] && typeof data[key] === "object") {
+              const r = getQuestions(data[key]);
+              if (r.length) return r;
+            }
+          }
+        }
+        return [];
+      }
+
+      function jsonSeconds(q) {
+        /* Kahoot stores milliseconds */
+        let v = Number(q && q.time);
+        if (!isFinite(v)) return 20;
+        if (v >= 1000) v = v / 1000;
+        return Math.max(5, Math.min(180, Math.round(v)));
+      }
+
+      function jsonMedia(q) {
+        /* image or YouTube video */
+        let img = String((q && q.image) || "").trim();
+        if (!img && q && q.imageMetadata && typeof q.imageMetadata === "object") {
+          img = String(q.imageMetadata.url || "").trim();
+          if (!img && q.imageMetadata.id) img = "https://media.kahoot.it/" + String(q.imageMetadata.id);
+        }
+        if (q && q.video && typeof q.video === "object") {
+          const id = String(q.video.id || "").trim();
+          const svc = String(q.video.service || q.video.type || "").toLowerCase();
+          if (id && svc.includes("youtube")) return "https://www.youtube.com/watch?v=" + id;
+        }
+        return img;
+      }
+
+      function kahootToRows(data) {
+        const rows = [],
+          skipped = [];
+        getQuestions(data).forEach((q, i) => {
+          const no = "Q" + (i + 1);
+          const question = String((q && (q.question || q.title)) || "").trim();
+          if (!question) {
+            skipped.push(no + ": empty question");
+            return;
+          }
+          const type = String((q && q.type) || "quiz").toLowerCase();
+          if (!KAHOOT_TYPES_OK.includes(type)) {
+            skipped.push(no + ': question type "' + type + '" is not a quiz question');
+            return;
+          }
+          const choices = (Array.isArray(q.choices) ? q.choices : [])
+            .map((c) => ({ text: String((c && c.answer) || "").trim(), correct: !!(c && c.correct) }))
+            .filter((c) => c.text);
+          const corr = choices.filter((c) => c.correct);
+          if (corr.length !== 1) {
+            skipped.push(no + ": " + (corr.length ? "multiple correct answers (multi-select)" : "no correct answer marked"));
+            return;
+          }
+          const wrongs = choices.filter((c) => !c.correct).map((c) => c.text);
+          if (wrongs.length < 3) {
+            skipped.push(no + ": not enough wrong answers (true/false question?)");
+            return;
+          }
+          rows.push([question, corr[0].text, wrongs[0], wrongs[1], wrongs[2], jsonSeconds(q), jsonMedia(q)]);
+        });
+        return { rows, skipped };
+      }
+
+      /* used by the flip card: convert, download a CSV, flip back */
+      function convertKahootQuiz(data) {
+        const { rows, skipped } = kahootToRows(data);
+        if (!rows.length) {
+          toast("No convertible quiz questions found in that JSON.", "err");
+          return;
+        }
+        const esc = (v) => {
+          v = String(v == null ? "" : v);
+          return /[;"\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+        };
+        const lines = [TEMPLATE[0].map(esc).join(";")];
+        rows.forEach((r) => lines.push(r.map(esc).join(";")));
+        const csv = "\uFEFF" + lines.join("\r\n");
+        const src = data && typeof data === "object" ? (data.kahoot && typeof data.kahoot === "object" ? data.kahoot : data) : {};
+        const slug = String(src.title || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 40);
+        const fname = (slug || "kahoot") + "_feliz.csv";
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        SFX.join();
+        toast(
+          "Kahoot converted: " + rows.length + " question(s) downloaded as CSV" + (skipped.length ? " · " + skipped.length + " skipped" : ""),
+          "ok",
+        );
+        if (skipped.length) console.info("[Feliz] skipped Kahoot questions:\n" + skipped.join("\n"));
+        flipCard.classList.remove("flipped");
+        kahootInput.value = "";
+      }
+
+      /* used by the dropzone: a .json file loads the quiz directly */
+      async function loadKahootJsonFile(file) {
+        const text = await file.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error("That .json file is not valid JSON.");
+        }
+        const { rows, skipped } = kahootToRows(data);
+        if (!rows.length) throw new Error("No convertible quiz questions found in that JSON.");
+        G.quiz = buildQuiz([TEMPLATE[0].slice(), ...rows.map((r) => r.slice())]);
+        SFX.join();
+        toast("Kahoot JSON loaded: " + G.quiz.questions.length + " questions" + (skipped.length ? " · " + skipped.length + " skipped" : ""), "ok");
+        if (skipped.length) console.info("[Feliz] skipped Kahoot questions:\n" + skipped.join("\n"));
+        enterLobby();
+      }
 
       /* =============== spreadsheet import =============== */
       function decodeBuf(buf) {
@@ -2544,26 +2867,37 @@
       async function handleFile(file) {
         const name = (file.name || "").toLowerCase();
         try {
-          if (/\.(csv|tsv|txt)$/.test(name)) {
+          if (/\.json$/.test(name)) {
+            await loadKahootJsonFile(file);
+          } else if (/\.(csv|tsv|txt)$/.test(name)) {
             const buf = await file.arrayBuffer();
             const text = decodeBuf(buf);
             G.quiz = buildQuiz(parseCSV(text, sniff(text)));
+            toast(
+              "Quiz loaded: " +
+                G.quiz.questions.length +
+                " questions" +
+                (G.quiz.skipped ? " · " + G.quiz.skipped + " rows skipped" : "") +
+                (G.quiz.source === "kahoot" ? " · Kahoot template detected" : ""),
+              "ok",
+            );
+            enterLobby();
           } else if (/\.(xlsx|xls|ods)$/.test(name)) {
             if (typeof XLSX === "undefined") throw new Error("Excel library not loaded (offline?) – please use CSV.");
             const buf = await file.arrayBuffer();
             const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
             const ws = wb.Sheets[wb.SheetNames[0]];
             G.quiz = buildQuiz(XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" }));
-          } else throw new Error("Unsupported file type – please use CSV or Excel (.xlsx).");
-          toast(
-            "Quiz loaded: " +
-              G.quiz.questions.length +
-              " questions" +
-              (G.quiz.skipped ? " · " + G.quiz.skipped + " rows skipped" : "") +
-              (G.quiz.source === "kahoot" ? " · Kahoot template detected" : ""),
-            "ok",
-          );
-          enterLobby();
+            toast(
+              "Quiz loaded: " +
+                G.quiz.questions.length +
+                " questions" +
+                (G.quiz.skipped ? " · " + G.quiz.skipped + " rows skipped" : "") +
+                (G.quiz.source === "kahoot" ? " · Kahoot template detected" : ""),
+              "ok",
+            );
+            enterLobby();
+          } else throw new Error("Unsupported file type – please use CSV, Excel (.xlsx) or Kahoot JSON.");
         } catch (e) {
           toast(e.message || "The file could not be read.", "err");
         }
@@ -3454,11 +3788,6 @@
       $("#fileInput").addEventListener("change", (e) => {
         if (e.target.files[0]) handleFile(e.target.files[0]);
         e.target.value = "";
-      });
-      $("#btnDemo").addEventListener("click", () => {
-        G.quiz = buildQuiz(SAMPLE.map((r) => r.slice()));
-        toast("Sample quiz loaded: " + G.quiz.questions.length + " questions", "ok");
-        enterLobby();
       });
       $("#btnTemplate").addEventListener("click", () => {
         const csv = "\uFEFF" + TEMPLATE.map((r) => r.join(";")).join("\r\n");
