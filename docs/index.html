@@ -1707,7 +1707,7 @@
         <circle cx="35" cy="13" r="5.5" fill="currentColor" />
         <circle cx="24" cy="26" r="14" fill="currentColor" />
         <circle cx="18.5" cy="23" r="2.5" fill="#1b1b1b" />
-        <circle cx="29.5" cy="23" r="2.5" fill="#1b1b" />
+        <circle cx="29.5" cy="23" r="2.5" fill="#1b1b1b" />
         <ellipse cx="24" cy="31" rx="5" ry="3.6" fill="#1b1b1b" />
       </symbol>
       <symbol id="a-owl" viewBox="0 0 48 48">
@@ -2054,7 +2054,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js" defer></script>
     <script defer>
       "use strict";
-      console.info('[Feliz] v2.11 · Kahoot "jumble" = sorting question, sup-HTML → ²');
+      console.info("[Feliz] v2.12 · CSV with Type column: sort + input work end-to-end");
       /* =============== helpers =============== */
       const $ = (s) => document.querySelector(s);
       function el(tag, cls, txt) {
@@ -2563,20 +2563,33 @@
         "data:image/svg+xml;charset=utf-8," +
         encodeURIComponent(
           `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300">
-      <polygon points="90,255 390,255 174,74" fill="none" stroke="#d4d4d4" stroke-width="5" stroke-linejoin="round"/>
-      <path d="M130 255 A40 40 0 0 0 106.9 218.7" fill="none" stroke="#d4d4d4" stroke-width="3"/>
-      <text x="142" y="240" fill="#d4d4d4" font-family="Arial" font-size="22">65\u00B0</text>
-      <path d="M350 255 A40 40 0 0 1 359.4 229.3" fill="none" stroke="#d4d4d4" stroke-width="3"/>
-      <text x="296" y="240" fill="#d4d4d4" font-family="Arial" font-size="22">40\u00B0</text>
-      <path d="M161 101 A30 30 0 0 0 197 93" fill="none" stroke="#ffa602" stroke-width="3"/>
-      <text x="164" y="138" fill="#ffa602" font-family="Arial" font-size="28" font-weight="bold">\u03B1</text>
-      </svg>`,
+<polygon points="90,255 390,255 174,74" fill="none" stroke="#d4d4d4" stroke-width="5" stroke-linejoin="round"/>
+<path d="M130 255 A40 40 0 0 0 106.9 218.7" fill="none" stroke="#d4d4d4" stroke-width="3"/>
+<text x="142" y="240" fill="#d4d4d4" font-family="Arial" font-size="22">65\u00B0</text>
+<path d="M350 255 A40 40 0 0 1 359.4 229.3" fill="none" stroke="#d4d4d4" stroke-width="3"/>
+<text x="296" y="240" fill="#d4d4d4" font-family="Arial" font-size="22">40\u00B0</text>
+<path d="M161 101 A30 30 0 0 0 197 93" fill="none" stroke="#ffa602" stroke-width="3"/>
+<text x="164" y="138" fill="#ffa602" font-family="Arial" font-size="28" font-weight="bold">\u03B1</text>
+</svg>`,
         );
+      /* Type column (optional): "" = multiple choice · "sort" = ordering (the four
+   answer columns hold the items in TARGET order) · "input" = type answer    */
       const TEMPLATE = [
-        ["Question", "Correct Answer", "Wrong Answer 1", "Wrong Answer 2", "Wrong Answer 3", "Time in seconds", "Image / Video (optional)"],
-        ["What is the capital of Australia?", "Canberra", "Sydney", "Melbourne", "Perth", 20, ""],
-        ["How big is angle \u03B1 in the triangle?", "75\u00B0", "65\u00B0", "85\u00B0", "55\u00B0", 25, TRI_SVG],
-        ["What is 12 \u00D7 12?", "144", "124", "132", "148", 10, ""],
+        [
+          "Question",
+          "Correct Answer",
+          "Wrong Answer 1",
+          "Wrong Answer 2",
+          "Wrong Answer 3",
+          "Time in seconds",
+          "Image / Video (optional)",
+          "Type (optional)",
+        ],
+        ["What is the capital of Australia?", "Canberra", "Sydney", "Melbourne", "Perth", 20, "", ""],
+        ["How big is angle \u03B1 in the triangle?", "75\u00B0", "65\u00B0", "85\u00B0", "55\u00B0", 25, TRI_SVG, ""],
+        ["What is 12 \u00D7 12?", "144", "124", "132", "148", 10, "", ""],
+        ["Sort ascending", "1", "5", "17", "23", 30, "", "sort"],
+        ["What is the capital of France?", "Paris", "", "", "", 20, "", "input"],
       ];
 
       /* =============== Kahoot import (flip card + JSON drop) =============== */
@@ -2666,18 +2679,14 @@
         }
       }
 
-      /* ---- Kahoot JSON -> Feliz rows / questions ----
-         Ordering questions are type "jumble" in Kahoot: all choices carry
-         correct:true and the JSON order IS the target order.                 */
+      /* ---- Kahoot JSON -> Feliz rows / questions ---- */
       const KAHOOT_FILLERS = ["Neither of these", "Both of these", "Cannot be determined"];
-      const TXT_ORDER = " \u2013 Which order is correct?";
       const TXT_SELECTALL = " \u2013 Select all correct answers:";
 
       const ANSWER_TYPES = ["type_answer", "open_ended"];
       const ORDER_RE = /order|sort|rank|sequen|puzzle|jumble|reorder|drag|arrange/i;
       const POLL_RE = /poll|survey|word_?cloud|brainstorm|collect|slide|feedback|opinion|quiz_?poll|slider/i;
 
-      /* convert Kahoot's HTML snippets: 10<sup>2</sup> -> 10² */
       const SUPCH = {
         0: "\u2070",
         1: "\u00B9",
@@ -2777,27 +2786,10 @@
           if (typeof a === "string" && a.trim()) return { kind: "audio", src: a.trim() };
         }
         const v = q.video;
-        if (
-          v &&
-          typeof v === "object" &&
-          v.id &&
-          String(v.service || v.type || "")
-            .toLowerCase()
-            .includes("youtube") &&
-          !String(v.fullUrl || "") === false
-        ) {
-        }
-        if (v && typeof v === "object" && String(v.fullUrl || "") !== "") {
-          const id = String(v.id || "").trim();
-          const svc = String(v.service || v.type || "").toLowerCase();
-          if (!id && !svc.includes("youtube") && !/^https?:/.test(String(v.fullUrl))) {
-            /*empty*/
-          }
-        }
         if (v && typeof v === "object") {
           const id = String(v.id || "").trim();
           const svc = String(v.service || v.type || "").toLowerCase();
-          if (id && svc.includes("youtube") && v.fullUrl !== "") {
+          if (id && svc.includes("youtube") && String(v.fullUrl || "") !== "") {
             let start = Number(v.startTime),
               end = Number(v.endTime);
             if (Number.isFinite(start) && start > 0) start = start >= 1000 ? start / 1000 : start;
@@ -2833,9 +2825,7 @@
         return [...new Set(arr)];
       }
 
-      /* ordering detection – by type name ("jumble"!) or structure.
-         Jumble signature: EVERY choice is marked correct, and the JSON order
-         is the target order; the "no choice marked" case is also supported. */
+      /* ordering detection – type name ("jumble") or all-correct signature */
       function orderInfo(q) {
         const type = String((q && q.type) || "quiz").toLowerCase();
         const choices = extractChoices(q);
@@ -2861,7 +2851,8 @@
         return { items, text: formatText(q && (q.question || q.title)), time: jsonSeconds(q), media: jsonMedia(q) };
       }
 
-      /* rows for the CSV export (sorting becomes the MC fallback there) */
+      /* rows for the CSV export – with the Type column, sorting and text entry
+   survive a CSV round trip                                             */
       function kahootToRows(data, skipOrder) {
         const rows = [],
           skipped = [];
@@ -2882,16 +2873,8 @@
           const oi = orderInfo(q);
           if (oi) {
             if (skipOrder) return;
-            const join = (a) => a.join(" \u2192 ");
-            const seq = join(oi.items);
-            const swap = oi.items.slice();
-            [swap[0], swap[1]] = [swap[1], swap[0]];
-            const perms = [join(oi.items.slice(1).concat(oi.items.slice(0, 1)))];
-            if (oi.items.length > 2) perms.push(join(oi.items.slice(2).concat(oi.items.slice(0, 2))));
-            perms.push(join(swap));
-            let w = dedupe(perms.filter((p) => p !== seq)).slice(0, 3);
-            while (w.length < 1) w.push(KAHOOT_FILLERS[w.length]);
-            rows.push([question + TXT_ORDER, seq, w[0], w[1] || "", w[2] || "", time, media]);
+            const items = oi.items.slice(0, 4);
+            rows.push([question, items[0], items[1] || "", items[2] || "", items[3] || "", time, media, "sort"]);
             return;
           }
 
@@ -2900,14 +2883,14 @@
               skipped.push(no + ": true/false question without a marked answer");
               return;
             }
-            rows.push([question, corr[0], wrong[0], "", "", time, media]);
+            rows.push([question, corr[0], wrong[0], "", "", time, media, ""]);
             return;
           }
 
           if (ANSWER_TYPES.includes(type)) {
             const accept = collectAccepted(q);
             if (accept.length) {
-              rows.push([question, accept[0], "", "", "", time, media]);
+              rows.push([question, accept[0], "", "", "", time, media, "input"]);
               return;
             }
             skipped.push(no + ": no expected answer stored");
@@ -2915,8 +2898,9 @@
           }
 
           if (corr.length === 0) {
-            if (wrong.length === 0 && collectAccepted(q).length) {
-              rows.push([question, collectAccepted(q)[0], "", "", "", time, media]);
+            const acc = collectAccepted(q);
+            if (acc.length) {
+              rows.push([question, acc[0], "", "", "", time, media, "input"]);
               return;
             }
             skipped.push(no + ': question type "' + type + '" is not supported yet – see browser console');
@@ -2924,7 +2908,7 @@
             return;
           }
           if (corr.length === 1) {
-            rows.push([question, corr[0], wrong[0] || "", wrong[1] || "", wrong[2] || "", time, media]);
+            rows.push([question, corr[0], wrong[0] || "", wrong[1] || "", wrong[2] || "", time, media, ""]);
             return;
           }
           const correctText = corr.join(" + ");
@@ -2935,12 +2919,12 @@
           if (corr.length > 2) cand.push(corr.slice(0, -1).join(" + "));
           let w = dedupe(cand.filter((x) => x && x !== correctText)).slice(0, 3);
           while (w.length < 1) w.push(KAHOOT_FILLERS[w.length]);
-          rows.push([question + TXT_SELECTALL, correctText, w[0] || "", w[1] || "", w[2] || "", time, media]);
+          rows.push([question + TXT_SELECTALL, correctText, w[0] || "", w[1] || "", w[2] || "", time, media, ""]);
         });
         return { rows, skipped };
       }
 
-      /* real questions: multiple choice + sorting + text entry (all import paths) */
+      /* real questions (all import paths) */
       function kahootToQuestions(data) {
         const { rows, skipped } = kahootToRows(data, true);
         const questions = rows.length ? buildQuiz([TEMPLATE[0].slice(), ...rows.map((r) => r.slice())]).questions : [];
@@ -2974,8 +2958,6 @@
         return { questions, skippedCount: skipped.length, skipped };
       }
 
-      /* load a Kahoot quiz directly (all import paths). alsoSave=true
-         additionally downloads the CSV copy.                                */
       function loadKahootQuiz(data, alsoSave) {
         const { questions, skippedCount, skipped } = kahootToQuestions(data);
         if (!questions.length) {
@@ -3035,6 +3017,10 @@
       }
 
       /* =============== spreadsheet import =============== */
+      /* Type column values: sort/order/jumble/sortieren → sorting question;
+   input/eingabe/text → type the answer; empty → multiple choice      */
+      const TYPE_SORT_RE = /sort|order|jumble|reihenfolge/i;
+      const TYPE_INPUT_RE = /input|eingabe|tippen|schreiben|type/i;
       function decodeBuf(buf) {
         try {
           return new TextDecoder("utf-8", { fatal: true }).decode(buf);
@@ -3156,18 +3142,19 @@
         if (okI == null) okI = find(incl(["antwort", "answer"], ["falsch", "wrong"]));
         let timeI = find(incl(["zeit", "sekund", "sek", "dauer", "time"]));
         let mediaI = find(incl(["bild", "medium", "media", "video", "audio", "musik", "music", "link", "embed", "grafik", "foto"]));
+        let typeI = find(incl(["typ", "type", "art"]));
         let wrongI = [];
         head.forEach((h, i) => {
           if (h.includes("falsch") || h.includes("wrong") || h.includes("distr") || h.includes("ablenk")) wrongI.push(i);
         });
-        const headerBased = qI != null || okI != null || timeI != null || mediaI != null || wrongI.length > 0;
+        const headerBased = qI != null || okI != null || timeI != null || mediaI != null || typeI != null || wrongI.length > 0;
         let dataRows;
         if (headerBased) {
           dataRows = rows.slice(1);
           if (qI == null) qI = 0;
           if (okI == null) okI = 1;
           if (!wrongI.length) {
-            const used = new Set([qI, okI, timeI, mediaI]);
+            const used = new Set([qI, okI, timeI, mediaI, typeI]);
             const answerCols = [],
               otherCols = [];
             head.forEach((h, i) => {
@@ -3185,11 +3172,19 @@
           wrongI = [2, 3, 4];
           timeI = 5;
           mediaI = 6;
+          typeI = 7;
           dataRows = rows;
         }
         let numRef = false;
         if (headerBased && okI != null && wrongI.length >= 1) {
           for (const r of dataRows) {
+            const typ =
+              typeI != null && typeI < r.length
+                ? String(r[typeI] || "")
+                    .trim()
+                    .toLowerCase()
+                : "";
+            if (typ) continue;
             if (String(r[qI] || "").trim()) {
               numRef = /^\d+(?:\s*[,;|]\s*\d+)*$/.test(String(r[okI] || "").trim());
               break;
@@ -3204,8 +3199,33 @@
             return String(typeof v === "object" ? "" : v == null ? "" : v).trim();
           };
           const text = cell(qI);
+          const typ = typeI != null && typeI < r.length ? cell(typeI).toLowerCase() : "";
           let correct = "",
             wrongs = [];
+          if (TYPE_SORT_RE.test(typ)) {
+            /* sorting question: answer columns = items in target order */
+            correct = cell(okI);
+            wrongs = wrongI.map(cell).filter((w) => w !== "");
+            const items = [correct, ...wrongs];
+            if (!text || items.length < 2) {
+              skipped++;
+              continue;
+            }
+            let t = parseFloat(cell(timeI).replace(",", "."));
+            if (!isFinite(t) || t <= 0) t = 20;
+            t = Math.min(180, Math.max(5, Math.round(t)));
+            const rawMedia = mediaI != null && mediaI < r.length ? r[mediaI] : null;
+            const media =
+              rawMedia && typeof rawMedia === "object"
+                ? rawMedia
+                : mediaI != null
+                  ? detectMedia(String(rawMedia == null ? "" : rawMedia).trim())
+                  : null;
+            const display = shuffle(items.slice());
+            const correctOrder = items.map((it) => display.indexOf(it));
+            questions.push({ text, time: t, media, type: "order", answers: display, correctOrder, correct: -1 });
+            continue;
+          }
           if (numRef) {
             wrongs = stripFillers(wrongI.map(cell).filter((w) => w !== ""));
             const v = cell(okI);
@@ -3238,7 +3258,7 @@
               : mediaI != null
                 ? detectMedia(String(rawMedia == null ? "" : rawMedia).trim())
                 : null;
-          if (wrongs.length < 1) {
+          if (TYPE_INPUT_RE.test(typ) || wrongs.length < 1) {
             questions.push({
               text,
               time: t,
@@ -3260,6 +3280,7 @@
           correct: okI,
           time: timeI,
           answers: wrongI,
+          type: typeI,
           mode: numRef ? "number-ref" : "answer-text",
         });
         return { questions, skipped, source: numRef ? "kahoot" : "classic" };
