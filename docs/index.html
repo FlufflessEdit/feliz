@@ -1880,7 +1880,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js" defer></script>
     <script defer>
       "use strict";
-      console.info("[Feliz] v2.3 · Kahoot JSON drop + paste auto-convert");
+      console.info("[Feliz] v2.5 · robust Kahoot question-type detection");
       /* =============== helpers =============== */
       const $ = (s) => document.querySelector(s);
       function el(tag, cls, txt) {
@@ -2419,11 +2419,6 @@
       ];
 
       /* =============== Kahoot import (flip card + JSON drop) =============== */
-      /* The button flips bottom-over-top; the back holds an input that accepts
-   either a Kahoot URL (quiz id is extracted and fetched) or the quiz JSON
-   pasted directly (fallback when Kahoot's CORS policy blocks the fetch).
-   Pasting JSON converts immediately; .json files can also be dragged onto
-   the dropzone and load the quiz directly.                                */
       const flipCard = $("#flipCard"),
         kahootInput = $("#kahootInput"),
         kahootGo = $("#btnKahootGo");
@@ -2488,10 +2483,6 @@
           const data = await res.json();
           convertKahootQuiz(data);
         } catch (e) {
-          /* Browsers block this cross-site request unless Kahoot allows it
-       (CORS). Fallback: open the JSON in a new tab – the browser session
-       is logged in there – copy everything (Ctrl+A, Ctrl+C), switch back
-       and paste it into the field; it converts automatically.            */
           const win = window.open(url, "_blank");
           if (win) {
             toast(
@@ -2505,8 +2496,6 @@
               "err",
             );
           }
-          /* put the cursor back into the field as soon as this window is focused
-       again, so a single Ctrl+V finishes the import                       */
           const refocus = () => {
             kahootInput.focus();
             window.removeEventListener("focus", refocus);
@@ -2517,8 +2506,19 @@
         }
       }
 
-      /* ---- Kahoot JSON -> Feliz rows (port of kahoot2feliz.py) ---- */
-      const KAHOOT_TYPES_OK = ["quiz", "multiple_select", "quiz_multiple_select", "multiple_select_quiz", "true_false"];
+      /* ---- Kahoot JSON -> Feliz rows ----
+   Adjust these texts to your language if you like; the fillers are used
+   whenever a question type has fewer than four options of its own.     */
+      const KAHOOT_FILLERS = ["Neither of these", "Both of these", "Cannot be determined"];
+      const TXT_ORDER = " \u2013 Which order is correct?";
+      const TXT_SELECTALL = " \u2013 Select all correct answers:";
+
+      const ANSWER_TYPES = ["type_answer", "open_ended"];
+      /* type names are unreliable across Kahoot versions – ordering questions
+   are therefore ALSO detected structurally: several options and not a
+   single one marked correct                                  */
+      const ORDER_RE = /order|sort|rank|sequen|puzzle|reorder|drag|arrange/i;
+      const POLL_RE = /poll|survey|word_?cloud|brainstorm|collect|slide|feedback|opinion|quiz_?poll|slider/i;
 
       function getQuestions(data) {
         if (Array.isArray(data)) {
@@ -2539,6 +2539,38 @@
           }
         }
         return [];
+      }
+
+      /* robust choice extraction: field names and containers vary between
+   Kahoot versions (choices/options/items/answers, answer/text/…)      */
+      function extractChoices(q) {
+        if (!q || typeof q !== "object") return [];
+        const raw = Array.isArray(q.choices)
+          ? q.choices
+          : Array.isArray(q.options)
+            ? q.options
+            : Array.isArray(q.items)
+              ? q.items
+              : Array.isArray(q.answers)
+                ? q.answers
+                : [];
+        return raw
+          .map((c) => {
+            if (typeof c === "string") return { text: c.trim(), correct: false, order: null };
+            const text = String((c && (c.answer || c.text || c.choice || c.label || c.title || c.value)) || "").trim();
+            let order = null;
+            if (c && typeof c === "object") {
+              for (const k of ["order", "position", "index", "rank", "sequence"]) {
+                const v = Number(c[k]);
+                if (Number.isFinite(v)) {
+                  order = v;
+                  break;
+                }
+              }
+            }
+            return { text, correct: !!(c && c.correct), order };
+          })
+          .filter((c) => c.text);
       }
 
       function jsonSeconds(q) {
@@ -2564,6 +2596,23 @@
         return img;
       }
 
+      /* expected answer for "type answer" questions (several possible shapes) */
+      function typeAnswerCorrect(q, choices) {
+        if (q && typeof q.answer === "string" && q.answer.trim()) return q.answer.trim();
+        if (q && Array.isArray(q.answer)) {
+          const a = q.answer.map((x) => (typeof x === "string" ? x.trim() : String((x && (x.answer || x.text)) || "").trim())).filter(Boolean);
+          if (a.length) return a[0];
+        }
+        const marked = (choices || []).find((c) => c.correct && c.text);
+        if (marked) return marked.text;
+        if ((choices || []).length === 1) return choices[0].text;
+        return "";
+      }
+
+      function dedupe(arr) {
+        return [...new Set(arr)];
+      }
+
       function kahootToRows(data) {
         const rows = [],
           skipped = [];
@@ -2575,24 +2624,96 @@
             return;
           }
           const type = String((q && q.type) || "quiz").toLowerCase();
-          if (!KAHOOT_TYPES_OK.includes(type)) {
-            skipped.push(no + ': question type "' + type + '" is not a quiz question');
+          const choices = extractChoices(q);
+          const corr = choices.filter((c) => c.correct).map((c) => c.text);
+          const wrong = choices.filter((c) => !c.correct).map((c) => c.text);
+          const time = jsonSeconds(q),
+            media = jsonMedia(q);
+
+          /* --- ordering questions: by type name OR structure ---
+       structurally: several options, none marked correct, and the type
+       is not an answer/true-false/poll kind -> treat as ordering      */
+          const typeSaysOrder = ORDER_RE.test(type);
+          const structSaysOrder =
+            !typeSaysOrder &&
+            !ANSWER_TYPES.includes(type) &&
+            type !== "true_false" &&
+            !POLL_RE.test(type) &&
+            corr.length === 0 &&
+            choices.length >= 2;
+          if (typeSaysOrder || structSaysOrder) {
+            let items;
+            if (choices.every((c) => c.order != null)) {
+              items = choices
+                .slice()
+                .sort((a, b) => a.order - b.order)
+                .map((c) => c.text);
+            } else items = choices.map((c) => c.text);
+            if (structSaysOrder) console.info("[Feliz] " + no + ': no option marked correct – treated as an ordering question (type "' + type + '")');
+            if (items.length < 2) {
+              skipped.push(no + ": ordering question with fewer than 2 items");
+              return;
+            }
+            const join = (a) => a.join(" \u2192 "); /* -> */
+            const seq = join(items);
+            const swap = items.slice();
+            [swap[0], swap[1]] = [swap[1], swap[0]];
+            const perms = [join(items.slice(1).concat(items.slice(0, 1)))];
+            if (items.length > 2) perms.push(join(items.slice(2).concat(items.slice(0, 2))));
+            perms.push(join(swap));
+            let w = dedupe(perms.filter((p) => p !== seq)).slice(0, 3);
+            while (w.length < 3) w.push(KAHOOT_FILLERS[w.length]);
+            rows.push([question + TXT_ORDER, seq, w[0], w[1], w[2], time, media]);
             return;
           }
-          const choices = (Array.isArray(q.choices) ? q.choices : [])
-            .map((c) => ({ text: String((c && c.answer) || "").trim(), correct: !!(c && c.correct) }))
-            .filter((c) => c.text);
-          const corr = choices.filter((c) => c.correct);
-          if (corr.length !== 1) {
-            skipped.push(no + ": " + (corr.length ? "multiple correct answers (multi-select)" : "no correct answer marked"));
+
+          /* --- true/false: the two original options + neutral fillers --- */
+          if (type === "true_false") {
+            if (corr.length !== 1) {
+              skipped.push(no + ": true/false question without a marked answer");
+              return;
+            }
+            const w = [...wrong, KAHOOT_FILLERS[0], KAHOOT_FILLERS[1]].slice(0, 3);
+            rows.push([question, corr[0], w[0], w[1], w[2], time, media]);
             return;
           }
-          const wrongs = choices.filter((c) => !c.correct).map((c) => c.text);
-          if (wrongs.length < 3) {
-            skipped.push(no + ": not enough wrong answers (true/false question?)");
+
+          /* --- type answer: the expected answer as the correct option --- */
+          if (ANSWER_TYPES.includes(type) || corr.length === 0) {
+            const a = typeAnswerCorrect(q, choices);
+            if (a) {
+              rows.push([question, a, KAHOOT_FILLERS[0], KAHOOT_FILLERS[1], KAHOOT_FILLERS[2], time, media]);
+              return;
+            }
+            skipped.push(no + ': question type "' + type + '" is not supported yet – see browser console');
+            console.info("[Feliz] unsupported question " + no + ' (type "' + type + '"):', JSON.stringify(q));
             return;
           }
-          rows.push([question, corr[0].text, wrongs[0], wrongs[1], wrongs[2], jsonSeconds(q), jsonMedia(q)]);
+
+          /* --- quiz / multi select --- */
+          if (corr.length === 1) {
+            let w = wrong.slice(0, 3);
+            for (const f of KAHOOT_FILLERS) {
+              if (w.length >= 3) break;
+              w.push(f);
+            }
+            if (w.length < 3) {
+              skipped.push(no + ": not enough options to build 4 answers");
+              return;
+            }
+            rows.push([question, corr[0], w[0], w[1], w[2], time, media]);
+            return;
+          }
+          /* multiple correct answers -> "select all correct answers" */
+          const correctText = corr.join(" + ");
+          const cand = [];
+          if (corr.length > 1) cand.push(corr.slice(1).join(" + "));
+          if (wrong.length) cand.push(corr.slice(0, -1).concat(wrong[0]).join(" + "));
+          if (wrong.length) cand.push(wrong.slice(0, 2).join(" + "));
+          if (corr.length > 2) cand.push(corr.slice(0, -1).join(" + "));
+          let w = dedupe(cand.filter((x) => x && x !== correctText)).slice(0, 3);
+          while (w.length < 3) w.push(KAHOOT_FILLERS[w.length]);
+          rows.push([question + TXT_SELECTALL, correctText, w[0], w[1], w[2], time, media]);
         });
         return { rows, skipped };
       }
@@ -2780,8 +2901,6 @@
           if (qI == null) qI = 0;
           if (okI == null) okI = 1;
           if (!wrongI.length) {
-            /* remaining columns become the answer options; columns named
-         "Answer/Antwort n" come first, then anything else            */
             const used = new Set([qI, okI, timeI, mediaI]);
             const answerCols = [],
               otherCols = [];
@@ -2803,8 +2922,7 @@
           dataRows = rows;
         }
         /* Kahoot's import template: the "Correct answer(s)" column holds the
-     NUMBER of the right answer (e.g. "3"), not the answer text. Detect
-     that from the first filled data row and handle it transparently.  */
+     NUMBER of the right answer (e.g. "3"), not the answer text.       */
         let numRef = false;
         if (headerBased && okI != null && wrongI.length >= 2) {
           for (const r of dataRows) {
@@ -2825,18 +2943,17 @@
           let correct = "",
             wrongs = [];
           if (numRef) {
-            /* the answer columns hold all four options; pick the numbered one */
             wrongs = wrongI.map(cell).filter((w) => w !== "");
             const v = cell(okI);
             if (!/^\d+(?:\s*[,;|]\s*\d+)*$/.test(v)) {
               skipped++;
               continue;
-            } /* invalid entry */
+            }
             const nums = (v.match(/\d+/g) || []).map(Number);
             if (nums.length !== 1 || nums[0] < 1 || nums[0] > wrongs.length) {
               skipped++;
               continue;
-            } /* multi-select or out of range */
+            }
             correct = wrongs[nums[0] - 1];
             wrongs = wrongs.filter((_, i) => i !== nums[0] - 1);
           } else {
@@ -2974,7 +3091,6 @@
             if (cb) cb();
           }
         },
-        /* click on the timer or pressing space: run the clock down, normal flow continues */
         expire() {
           if (!this.id) return;
           this.endT = performance.now();
@@ -3016,7 +3132,7 @@
         if (G.state === "active") {
           Timer.expire();
           return;
-        } /* during a question: time runs out */
+        }
         if (G.phaseNext) finishPhase();
       }
 
@@ -3054,7 +3170,6 @@
           const ok = QR.draw(cvs, text, { dark: "#1b1b1b", light: "#f2f1ec" });
           if (!ok) throw new Error("link too long");
         } catch (e) {
-          /* never leave a silently white tile */
           cvs.width = cvs.height = 300;
           const ctx = cvs.getContext("2d");
           ctx.fillStyle = "#f2f1ec";
@@ -3230,7 +3345,6 @@
       function renderStage(q) {
         Timer.stop();
         stageRoot.innerHTML = "";
-        /* left column: question + timer | middle: media | right: answers */
         const stage = el("div", "stage");
         const qcol = el("div", "qcol");
         qSlotEl = el("div", "qslot");
@@ -3263,8 +3377,6 @@
             im.referrerPolicy = "no-referrer";
             mediaBoxEl.appendChild(im);
           }
-          /* hidden until it grows out of the centre in transitionIn –
-       otherwise it flashes behind the intro overlay              */
           mediaBoxEl.style.opacity = "0";
           ms.appendChild(mediaBoxEl);
         } else mediaBoxEl = null;
@@ -3288,8 +3400,6 @@
         introLabel.textContent = "Question " + (G.qi + 1) + " of " + G.order.length;
         qText.textContent = G.q.text;
         introSlot.appendChild(qText);
-        /* show the overlay instantly (no fade-in): a fading overlay would let
-     the freshly built stage shine through for a fraction of a second   */
         introOverlay.style.transition = "none";
         introOverlay.classList.remove("off");
         void introOverlay.offsetWidth;
@@ -3304,7 +3414,6 @@
       function transitionIn() {
         G.state = "flying";
         introOverlay.classList.add("off");
-        /* question: FLIP from the centre of the screen to the top-left column */
         const r0 = qText.getBoundingClientRect();
         qSlotEl.appendChild(qText);
         const r1 = qText.getBoundingClientRect();
@@ -3324,7 +3433,6 @@
           },
           { once: true },
         );
-        /* medium grows out of the centre into the big media zone */
         if (mediaBoxEl) {
           const mr = mediaBoxEl.getBoundingClientRect();
           const mx = innerWidth / 2 - (mr.left + mr.width / 2);
@@ -3337,8 +3445,6 @@
           mediaBoxEl.style.transform = "";
           mediaBoxEl.style.opacity = "1";
         }
-        /* answers fly in staggered from the right: top pair first,
-     bottom pair joins while they are still moving                */
         answerEls.forEach((b, i) => {
           setTimeout(() => b.classList.add("in"), 380 + (i > 1 ? 230 : 0));
         });
@@ -3403,8 +3509,6 @@
           }, 400);
         }
       }
-      /* called when the clock runs out, when everyone has answered, or when
-   the host presses space / clicks the timer – always the normal flow    */
       function endQuestion() {
         if (G.state !== "active") return;
         G.state = "result";
@@ -3414,7 +3518,6 @@
         G.botTOs = [];
         const q = G.q,
           limitMs = q.time * 1000;
-        /* classic Kahoot scoring: 1000·(1 − t/2), speed counts */
         G.players.forEach((p) => {
           const a = p.answered;
           let ok = false,
@@ -3431,7 +3534,6 @@
           p.score += p.lastDelta;
           p.streak = ok ? p.streak + 1 : 0;
         });
-        /* feedback to the clients (visible until the next question) */
         const ranked = [...G.players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
         const rankMap = new Map(ranked.map((p, i) => [p, i + 1]));
         conns().forEach((c) => {
@@ -3453,7 +3555,6 @@
         SFX.reveal();
         phase(3000, showScoreboard);
       }
-      /* results: wrong cards fall off screen, the correct one shows the count */
       function renderResults(counts) {
         const q = G.q;
         answerEls.forEach((b, i) => {
@@ -3826,7 +3927,6 @@
         AudioCore.setMuted(!AudioCore.muted);
         $("#muteUse").setAttribute("href", AudioCore.muted ? "#i-volx" : "#i-vol");
       });
-      /* timer click and space bar behave identically: the clock runs out */
       stageRoot.addEventListener("click", (e) => {
         if (G.state === "active") {
           if (e.target.closest(".timerwrap")) Timer.expire();
