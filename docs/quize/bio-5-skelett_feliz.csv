@@ -1,0 +1,24 @@
+﻿Question;Correct Answer;Wrong Answer 1;Wrong Answer 2;Wrong Answer 3;Time in seconds;Image / Video (optional);Type
+Wie heißt der markierte Knochen?;Steißbein;Becken;Kreuzbein;Brustbein;30;;
+Wie heißt der markierte Knochen?;Kreuzbein;Becken;Steißbein;Brustbein;30;;
+Wie heißt der markierte Knochen?;Becken;Kreuzbein;Steißbein;Brustbein;30;;
+Wie heißen die markierten Knochen?;Rippen;Brustbein;Kreuzbein;Wirbelsäule;30;;
+Wie heißen die markierten Knochen?;Schlüsselbein;Brustkorb;Kreuzbein;Schulterblatt;30;;
+Wie heißen die markierten Knochen?;Schulterblatt;Brustkorb;Kreuzbein;Schlüsselbein;30;;
+Wie heißen die markierten Knochen?;Wirbelsäule;Brustkorb;Kreuzbein;Becken;30;;
+Wie heißen die markierten Knochen?;Brustkorb;Kreuzbein;Becken;Wirbelsäule;30;;
+Wie heißen die markierten Knochen?;Schädel;Wirbelsäule;Unterkiefer;Kinn;30;;
+Wie heißt der markierte Knochen?;Unterkiefer;Schädel;Oberkiefer;Kinn;30;;
+Wie heißt der markierte Knochen?;Oberarmknochen;Elle;Speiche;Schienbein;30;;
+Wie heißt der markierte Knochen?;Speiche;Elle;Oberarmknochen;Schienbein;30;;
+Wie heißt der markierte Knochen?;Elle;Oberarmknochen;Speiche;Schienbein;30;;
+Wie heißen die markierten Knochen?;Fingerknochen;Handwurzelknochen;Mittelhandknochen;Fingerspitzen;30;;
+Wie heißen die markierten Knochen?;Mittelhandknochen;Fingerknochen;Handwurzelknochen;Fingerspitzen;30;;
+Wie heißen die markierten Knochen?;Zehenknochen;Fußwurzelknochen;Mittelfußknochen;Zehspitzen;30;;
+Wie heißen die markierten Knochen?;Mittelfußknochen;Fußwurzelknochen;Zehenknochen;Zehspitzen;30;;
+Wie heißen die markierten Knochen?;Wadenbein;Oberschenkelknochen;Kniescheibe;Schienbein;30;;
+Wie heißen die markierten Knochen?;Schienbein;Oberschenkelknochen;Kniescheibe;Wadenbein;30;;
+Wie heißen die markierten Knochen?;Oberschenkelknochen;Kniescheibe;Wadenbein;Schienbein;30;;
+Wie heißen die markierten Knochen?;Kniescheibe;Oberschenkelknochen;Wadenbein;Schienbein;30;;
+Wie heißen die markierten Knochen?;Fußwurzelknochen;Mittelfußknochen;Zehenknochen;Zehspitzen;30;;
+Wie heißen die markierten Knochen?;Handwurzelknochen;Fingerknochen;Mittelhandknochen;Fingerspitzen;30;;
