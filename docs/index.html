@@ -225,8 +225,6 @@
       }
 
       /* ---------- Kahoot import: flip card ---------- */
-      /* clicking the button flips it bottom-over-top by 180°; the back holds
-   the input field that accepts a Kahoot URL or pasted quiz JSON        */
       .flipwrap {
         width: 300px;
         height: 44px;
@@ -330,13 +328,12 @@
         padding: 12px;
         width: min(100%, 300px);
         box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+        display: grid;
+        place-items: center;
       }
       .qrtile canvas {
-        width: 100%;
-        height: auto;
-        display: block;
         border-radius: 6px;
-      }
+      } /* native pixel size, no CSS scaling – keeps modules sharp for scanners */
       .qrmeta {
         display: flex;
         flex-direction: column;
@@ -697,7 +694,6 @@
         font-size: 1.6rem;
         opacity: 0.95;
       }
-      /* wrong answers fall off screen, the correct one stays */
       .ans.fall {
         transform: translateY(190%) rotate(var(--tilt, 2deg));
         opacity: 0;
@@ -713,7 +709,6 @@
           transform: scale(1.04);
         }
       }
-      /* intro overlay */
       #introOverlay {
         position: absolute;
         inset: 0;
@@ -757,7 +752,6 @@
         width: 100%;
         background: var(--ink);
       }
-      /* phase progress */
       .phasebar {
         position: absolute;
         left: 50%;
@@ -793,7 +787,6 @@
         width: 100%;
         background: var(--acc);
       }
-      /* scoreboard */
       .sbscr {
         position: absolute;
         inset: 0;
@@ -1880,7 +1873,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js" defer></script>
     <script defer>
       "use strict";
-      console.info("[Feliz] v2.5 · robust Kahoot question-type detection");
+      console.info("[Feliz] v2.6 · QR Reed-Solomon fix");
       /* =============== helpers =============== */
       const $ = (s) => document.querySelector(s);
       function el(tag, cls, txt) {
@@ -1963,7 +1956,9 @@
           const res = new Array(div.length).fill(0);
           for (const b of data) {
             const f = b ^ res[0];
-            res.copyWithin(1, 0, res.length - 1);
+            /* LFSR step: shift LEFT (res[0] drops out), append 0,
+         then XOR the divisor scaled by the feedback factor            */
+            res.copyWithin(0, 1);
             res[res.length - 1] = 0;
             for (let i = 0; i < res.length; i++) res[i] ^= gmul(div[i], f);
           }
@@ -2171,9 +2166,11 @@
         function draw(canvas, text, opts) {
           const q = make(text);
           if (!q) return false;
-          const quiet = 4,
-            sc = 8,
-            px = (q.size + quiet * 2) * sc;
+          /* native pixel size that fits the 276px tile content – no CSS
+       rescaling, so module edges stay sharp for camera scanners      */
+          const quiet = 4;
+          const sc = Math.max(4, Math.floor(276 / (q.size + quiet * 2)));
+          const px = (q.size + quiet * 2) * sc;
           canvas.width = canvas.height = px;
           const ctx = canvas.getContext("2d");
           ctx.fillStyle = opts.light || "#ffffff";
@@ -2435,7 +2432,6 @@
         if (e.key === "Enter") startKahootImport();
       });
       kahootGo.addEventListener("click", startKahootImport);
-      /* pasting JSON converts immediately – no extra Enter needed */
       kahootInput.addEventListener("paste", () => {
         setTimeout(() => {
           const v = kahootInput.value.trim();
@@ -2506,17 +2502,12 @@
         }
       }
 
-      /* ---- Kahoot JSON -> Feliz rows ----
-   Adjust these texts to your language if you like; the fillers are used
-   whenever a question type has fewer than four options of its own.     */
+      /* ---- Kahoot JSON -> Feliz rows ---- */
       const KAHOOT_FILLERS = ["Neither of these", "Both of these", "Cannot be determined"];
       const TXT_ORDER = " \u2013 Which order is correct?";
       const TXT_SELECTALL = " \u2013 Select all correct answers:";
 
       const ANSWER_TYPES = ["type_answer", "open_ended"];
-      /* type names are unreliable across Kahoot versions – ordering questions
-   are therefore ALSO detected structurally: several options and not a
-   single one marked correct                                  */
       const ORDER_RE = /order|sort|rank|sequen|puzzle|reorder|drag|arrange/i;
       const POLL_RE = /poll|survey|word_?cloud|brainstorm|collect|slide|feedback|opinion|quiz_?poll|slider/i;
 
@@ -2541,8 +2532,6 @@
         return [];
       }
 
-      /* robust choice extraction: field names and containers vary between
-   Kahoot versions (choices/options/items/answers, answer/text/…)      */
       function extractChoices(q) {
         if (!q || typeof q !== "object") return [];
         const raw = Array.isArray(q.choices)
@@ -2574,7 +2563,6 @@
       }
 
       function jsonSeconds(q) {
-        /* Kahoot stores milliseconds */
         let v = Number(q && q.time);
         if (!isFinite(v)) return 20;
         if (v >= 1000) v = v / 1000;
@@ -2582,7 +2570,6 @@
       }
 
       function jsonMedia(q) {
-        /* image or YouTube video */
         let img = String((q && q.image) || "").trim();
         if (!img && q && q.imageMetadata && typeof q.imageMetadata === "object") {
           img = String(q.imageMetadata.url || "").trim();
@@ -2596,7 +2583,6 @@
         return img;
       }
 
-      /* expected answer for "type answer" questions (several possible shapes) */
       function typeAnswerCorrect(q, choices) {
         if (q && typeof q.answer === "string" && q.answer.trim()) return q.answer.trim();
         if (q && Array.isArray(q.answer)) {
@@ -2630,9 +2616,6 @@
           const time = jsonSeconds(q),
             media = jsonMedia(q);
 
-          /* --- ordering questions: by type name OR structure ---
-       structurally: several options, none marked correct, and the type
-       is not an answer/true-false/poll kind -> treat as ordering      */
           const typeSaysOrder = ORDER_RE.test(type);
           const structSaysOrder =
             !typeSaysOrder &&
@@ -2654,7 +2637,7 @@
               skipped.push(no + ": ordering question with fewer than 2 items");
               return;
             }
-            const join = (a) => a.join(" \u2192 "); /* -> */
+            const join = (a) => a.join(" \u2192 ");
             const seq = join(items);
             const swap = items.slice();
             [swap[0], swap[1]] = [swap[1], swap[0]];
@@ -2667,7 +2650,6 @@
             return;
           }
 
-          /* --- true/false: the two original options + neutral fillers --- */
           if (type === "true_false") {
             if (corr.length !== 1) {
               skipped.push(no + ": true/false question without a marked answer");
@@ -2678,7 +2660,6 @@
             return;
           }
 
-          /* --- type answer: the expected answer as the correct option --- */
           if (ANSWER_TYPES.includes(type) || corr.length === 0) {
             const a = typeAnswerCorrect(q, choices);
             if (a) {
@@ -2690,7 +2671,6 @@
             return;
           }
 
-          /* --- quiz / multi select --- */
           if (corr.length === 1) {
             let w = wrong.slice(0, 3);
             for (const f of KAHOOT_FILLERS) {
@@ -2704,7 +2684,6 @@
             rows.push([question, corr[0], w[0], w[1], w[2], time, media]);
             return;
           }
-          /* multiple correct answers -> "select all correct answers" */
           const correctText = corr.join(" + ");
           const cand = [];
           if (corr.length > 1) cand.push(corr.slice(1).join(" + "));
@@ -2718,7 +2697,6 @@
         return { rows, skipped };
       }
 
-      /* used by the flip card: convert, download a CSV, flip back */
       function convertKahootQuiz(data) {
         const { rows, skipped } = kahootToRows(data);
         if (!rows.length) {
@@ -2755,7 +2733,6 @@
         kahootInput.value = "";
       }
 
-      /* used by the dropzone: a .json file loads the quiz directly */
       async function loadKahootJsonFile(file) {
         const text = await file.text();
         let data;
@@ -2883,9 +2860,6 @@
           (v) =>
             keys.some((k) => v.includes(k)) && !excl.some((x) => v.includes(x));
         let qI = find(incl(["frage", "question"]));
-        /* IMPORTANT: match the correct-answer column STRICTER than answer
-     columns. "Answer 1 - max 75 characters" also contains "answer", so a
-     loose search would grab Answer 1 instead of "Correct answer(s)".   */
         let okI = find(incl(["richtig", "korrekt", "correct"], ["falsch", "wrong"]));
         if (okI == null) okI = find(incl(["antwort", "answer"], ["falsch", "wrong"]));
         let timeI = find(incl(["zeit", "sekund", "sek", "dauer", "time"]));
@@ -2921,8 +2895,6 @@
           mediaI = 6;
           dataRows = rows;
         }
-        /* Kahoot's import template: the "Correct answer(s)" column holds the
-     NUMBER of the right answer (e.g. "3"), not the answer text.       */
         let numRef = false;
         if (headerBased && okI != null && wrongI.length >= 2) {
           for (const r of dataRows) {
