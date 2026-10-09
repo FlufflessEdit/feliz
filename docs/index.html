@@ -5085,7 +5085,7 @@ function libStatusText() {
 /* ---- index: manifest first, directory listing as fallback ---- */
 async function loadLibIndex() {
   try {
-    const res = await fetch("quize/index.json");
+    const res = await fetch(LIB_DIR + "index.json");
     if (res.ok) {
       const data = await res.json();
       const arr = Array.isArray(data) ? data : Array.isArray(data && data.quizzes) ? data.quizzes : null;
@@ -5097,12 +5097,12 @@ async function loadLibIndex() {
 
 /* fallback: parse a server-generated directory listing */
 async function loadFromListing(sub = "", depth = 0) {
-  const res = await fetch("quize/" + sub);
+  const res = await fetch(LIB_DIR + sub);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const ct = (res.headers.get("content-type") || "").toLowerCase();
   if (!ct.includes("html") && !ct.includes("text/plain")) throw new Error("no directory listing");
   const doc = new DOMParser().parseFromString(await res.text(), "html");
-  const base = new URL("quize/" + sub, location.href);
+  const base = new URL(LIB_DIR + sub, location.href);
   const paths = [];
   for (const a of doc.querySelectorAll("a[href]")) {
     const href = a.getAttribute("href");
@@ -5143,7 +5143,7 @@ function itemsFromPaths(paths) {
     const file = parts.pop();
     if (!/\.(csv|tsv|txt)$/i.test(file)) return;
     const folder = parts.map(prettyName).join(" / ");
-    const url = "quize/" + parts.concat(file).map(encodeURIComponent).join("/");
+    const url = LIB_DIR + parts.concat(file).map(encodeURIComponent).join("/");
     byUrl.set(url, { title: prettyName(file.replace(/\.(csv|tsv|txt)$/i, "")), file, folder, url });
   });
   return [...byUrl.values()].sort((a, b) => a.folder.localeCompare(b.folder, "de") || a.title.localeCompare(b.title, "de"));
