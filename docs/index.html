@@ -1660,6 +1660,604 @@ body.ingame #chrome {
   }
 }
 
+/* ===== create mode ===== */
+.cwrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 76px 24px 24px;
+}
+.chead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.chead h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-right: auto;
+}
+.cacts {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.clist {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 2px 6px 10px 2px;
+  min-height: 0;
+}
+.cempty {
+  text-align: center;
+  color: var(--ink2);
+  padding: 46px 20px;
+  border: 2px dashed var(--ch);
+  border-radius: 16px;
+}
+.qcard {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.qbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.qnum {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--ink2);
+  min-width: 34px;
+}
+.typeseg {
+  display: flex;
+  background: var(--panel2);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+}
+.typeseg button {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--ink2);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.typeseg button:hover {
+  color: var(--ink);
+}
+.typeseg button.on {
+  background: var(--inv);
+  color: var(--invtx);
+}
+.qops {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.qin {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 54px;
+  outline: none;
+}
+.qin:focus {
+  border-color: var(--acc);
+}
+.afields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.afield {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.albl {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.albl .ic {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.afield input {
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  min-width: 0;
+}
+.afield input:focus {
+  border-color: var(--acc);
+}
+.afield.ok .albl {
+  color: var(--good);
+}
+.afield.ok input {
+  border-left: 4px solid var(--c4);
+}
+.afield.it1 .albl {
+  color: var(--c1);
+}
+.afield.it2 .albl {
+  color: var(--c2);
+}
+.afield.it3 .albl {
+  color: var(--c3);
+}
+.afield.it4 .albl {
+  color: var(--c4);
+}
+.afield.it1 input {
+  border-left: 4px solid var(--c1);
+}
+.afield.it2 input {
+  border-left: 4px solid var(--c2);
+}
+.afield.it3 input {
+  border-left: 4px solid var(--c3);
+}
+.afield.it4 input {
+  border-left: 4px solid var(--c4);
+}
+.sorthint {
+  color: var(--ink2);
+  font-size: 0.82rem;
+}
+.qmeta2 {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.tfield {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.tfield input {
+  width: 96px;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--mono);
+  font-weight: 600;
+  outline: none;
+}
+.tfield input:focus {
+  border-color: var(--acc);
+}
+.mfield {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mfield input {
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-family: var(--mono);
+  outline: none;
+  width: 100%;
+}
+.mfield input:focus {
+  border-color: var(--acc);
+}
+.mprev {
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  max-height: 150px;
+}
+.mprev img {
+  max-height: 150px;
+  max-width: 100%;
+  display: block;
+}
+.mprev span {
+  color: var(--ink2);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 16px;
+}
+.addq {
+  margin-top: 14px;
+  width: 100%;
+  justify-content: center;
+  padding: 15px;
+  border: 2px dashed var(--ch);
+  background: none;
+  border-radius: 14px;
+}
+.addq:hover {
+  background: var(--panel);
+  border-color: var(--acc);
+}
+.chint {
+  margin-top: 12px;
+  color: var(--ink2);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .afields {
+    grid-template-columns: 1fr;
+  }
+  .cwrap {
+    padding: 72px 14px 18px;
+  }
+}
+
+/* ===== quiz library ===== */
+.lwrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 76px 24px 24px;
+}
+.lhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.lhead h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin-right: auto;
+}
+.lstatus {
+  color: var(--ink2);
+  font-size: 0.9rem;
+}
+.lbody {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 18px;
+}
+.lleft {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 14px;
+}
+#libSearch {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--ink);
+  font: inherit;
+  outline: none;
+  margin-bottom: 10px;
+}
+#libSearch:focus {
+  border-color: var(--acc);
+}
+.llist {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lempty {
+  color: var(--ink2);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 18px 12px;
+  white-space: pre-line;
+}
+.litem {
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+}
+.litem:hover {
+  background: var(--paper);
+}
+.litem.sel {
+  background: var(--sel);
+}
+.lname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lgroup {
+  display: flex;
+  flex-direction: column;
+}
+.lcat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  color: var(--ink2);
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  transition: background 0.15s;
+}
+.lcat:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.lcat .chev {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  transition: transform 0.2s;
+}
+.lgroup.open .chev {
+  transform: rotate(90deg);
+}
+.lcatname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lcnt {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  background: var(--panel2);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: var(--ink2);
+  flex: none;
+}
+.lsub {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+}
+.lgroup.open .lsub {
+  display: flex;
+}
+.lright {
+  min-height: 0;
+  min-width: 0;
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+.pvhead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--ch);
+  padding-bottom: 12px;
+}
+.pvname {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-right: auto;
+}
+.pvmeta {
+  width: 100%;
+  color: var(--ink2);
+  font-size: 0.85rem;
+}
+.pvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pvq {
+  background: var(--panel2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pvqtop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pvnum {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--ink2);
+  font-size: 0.8rem;
+}
+.pvtype {
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink2);
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.pvtext {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+.pvmedia {
+  color: var(--c3);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.pvmedia img {
+  max-height: 90px;
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+.pvans {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.pvrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--ink2);
+  flex-wrap: wrap;
+}
+.pvrow.ok {
+  color: var(--good);
+  font-weight: 600;
+}
+.pvrow .ic {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.pvdot {
+  width: 14px;
+  height: 2px;
+  background: var(--ch);
+  border-radius: 1px;
+  flex: none;
+}
+.pvpos {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex: none;
+  color: #fff;
+}
+.pvrow.it1 .pvpos {
+  background: var(--c1);
+}
+.pvrow.it2 .pvpos {
+  background: var(--c2);
+}
+.pvrow.it3 .pvpos {
+  background: var(--c3);
+  color: #1b1b1b;
+}
+.pvrow.it4 .pvpos {
+  background: var(--c4);
+}
+.pvchip {
+  background: var(--paper);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.pvmore {
+  color: var(--ink2);
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 820px) {
+  .lbody {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .lleft {
+    flex: none;
+    max-height: 40vh;
+  }
+  .lright {
+    flex: none;
+  }
+  .lwrap {
+    padding: 72px 14px 18px;
+  }
+}
+
 </style>
 <!-- END css/style.css -->
 
@@ -1846,6 +2444,16 @@ body.ingame #chrome {
         <path d="M4 20l1.2-4.5L16.5 4.2l3.3 3.3L8.5 18.8 4 20z" />
         <path d="M14.5 6.2l3.3 3.3" />
       </symbol>
+      <symbol id="i-up" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </symbol>
+      <symbol id="i-down" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M19 12l-7 7-7-7" />
+      </symbol>
+      <symbol id="i-book" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.5 2H20v17.5H6.5A2.5 2.5 0 0 1 4 17V4.5A2.5 2.5 0 0 1 6.5 2z" />
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      </symbol>
     </svg>
 
     <!-- ====== Host UI ====== -->
@@ -1865,6 +2473,12 @@ body.ingame #chrome {
             <button class="ghost" id="btnBrowse">Browse file</button>
           </div>
           <div class="uprow">
+            <button class="ghost" id="btnLibrary">
+              <svg class="ic"><use href="#i-book" /></svg>Library
+            </button>
+            <button class="ghost" id="btnCreate">
+              <svg class="ic"><use href="#i-pencil" /></svg>Create quiz
+            </button>
             <button class="ghost" id="btnTemplate">
               <svg class="ic"><use href="#i-copy" /></svg>Download CSV template
             </button>
@@ -1886,6 +2500,49 @@ body.ingame #chrome {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scr-create" class="screen">
+        <div class="cwrap">
+          <header class="chead">
+            <button class="ghost" id="btnCreateBack">
+              <svg class="ic"><use href="#i-x" /></svg>Back
+            </button>
+            <h2 id="createTitle">Create quiz</h2>
+            <div class="cacts">
+              <button class="ghost" id="btnCreateCsv">
+                <svg class="ic"><use href="#i-download" /></svg>Export CSV
+              </button>
+              <button class="pill" id="btnCreateStart">
+                <svg class="ic"><use href="#i-play" /></svg>Start quiz
+              </button>
+            </div>
+          </header>
+          <div class="clist" id="createList"></div>
+          <button class="ghost addq" id="btnAddQuestion">
+            <svg class="ic"><use href="#i-plus" /></svg>Add question
+          </button>
+          <div class="chint">Sorting items are stored in target order · “Export CSV” saves your quiz for the drop zone and Excel.</div>
+        </div>
+      </section>
+
+      <section id="scr-library" class="screen">
+        <div class="lwrap">
+          <header class="lhead">
+            <button class="ghost" id="btnLibBack">
+              <svg class="ic"><use href="#i-x" /></svg>Back
+            </button>
+            <h2>Library</h2>
+            <span class="lstatus" id="libStatus"></span>
+          </header>
+          <div class="lbody">
+            <aside class="lleft">
+              <input id="libSearch" type="text" placeholder="Search quizzes …" autocomplete="off" spellcheck="false" />
+              <div class="llist" id="libList"></div>
+            </aside>
+            <main class="lright" id="libPreview"></main>
           </div>
         </div>
       </section>
@@ -3050,6 +3707,15 @@ function parseCSV(text, delim) {
 function detectMedia(v) {
   v = String(v || "").trim();
   if (!v) return null;
+  /* archive.org: /details/… links are HTML viewer pages, not media files.
+     /details/ITEM/FILE → /download/ITEM/FILE (direct, playable);
+     /details/ITEM alone → file resolved later via the metadata API.   */
+  const ia = v.match(/^https?:\/\/(?:www\.)?archive\.org\/details\/([^\/\s?#]+)(?:\/([^\s?#]+))?/i);
+  if (ia) {
+    const file = ia[2] || "";
+    if (!file) return { kind: "audio", src: "", iaItem: ia[1] };
+    if (/\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(file)) return { kind: "audio", src: "https://archive.org/download/" + ia[1] + "/" + file };
+  }
   if (/\.(mp3|wav|ogg|m4a|aac|flac)(\?|#|$)/i.test(v)) return { kind: "audio", src: v };
   const yt = v.match(/(?:youtube\.com\/(?:watch\?[^ ]*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   if (yt) return { kind: "yt", id: yt[1], start: 0, end: 0 };
@@ -3066,6 +3732,21 @@ function detectMedia(v) {
   }
   if (/^data:image\//i.test(v)) return { kind: "img", src: v };
   if (/^https?:\/\//i.test(v)) return { kind: "img", src: v };
+  return null;
+}
+/* archive.org item link without a file name: ask the public metadata
+   API (CORS-enabled) for the first audio file of the item          */
+async function resolveArchiveAudio(item) {
+  try {
+    const res = await fetch("https://archive.org/metadata/" + encodeURIComponent(item));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const isAudio = (f) => /\.(mp3|ogg|flac|wav|m4a|aac)$/i.test(f.name || "") || /mp3|ogg|flac|wav|m4a/i.test(f.format || "");
+    const files = (data.files || []).filter(isAudio);
+    const pick = files.find((f) => (f.source || "") === "original") || files[0];
+    if (pick)
+      return "https://archive.org/download/" + encodeURIComponent(item) + "/" + String(pick.name).split("/").map(encodeURIComponent).join("/");
+  } catch (e) {}
   return null;
 }
 function stripFillers(wrongs) {
@@ -3655,9 +4336,19 @@ function renderStage(q) {
       mediaBoxEl.classList.add("audiocard");
       mediaBoxEl.innerHTML = '<div class="eq"><i></i><i></i><i></i><i></i></div><span>Audio</span>';
       const au = document.createElement("audio");
-      au.src = q.media.src;
       au.loop = true;
       au.autoplay = true;
+      if (q.media.src) {
+        au.src = q.media.src;
+      } else if (q.media.iaItem) {
+        /* archive.org item link – resolve the audio file first */
+        resolveArchiveAudio(q.media.iaItem).then((src) => {
+          if (src) {
+            au.src = src;
+            au.play().catch(() => {});
+          }
+        });
+      }
       mediaBoxEl.appendChild(au);
     } else {
       const im = document.createElement("img");
@@ -4082,6 +4773,542 @@ $("#podBtn").addEventListener("click", () => {
 <!-- END js/host.js -->
 
     
+<!-- BEGIN js/create.js -->
+<script  defer>
+"use strict";
+
+/* =============== create mode: visual quiz editor =============== */
+/* Drafts use exactly the template row format:
+   [question, answer1, answer2, answer3, answer4, time, media, type]
+   so Start/Export reuse buildQuiz() and the CSV round trip.        */
+
+let drafts = [];
+
+const TYPE_LABELS = {
+  "": ["Correct answer", "Wrong answer 1", "Wrong answer 2", "Wrong answer 3"],
+  sort: ["Item 1 · target order", "Item 2 · target order", "Item 3 · optional", "Item 4 · optional"],
+  input: ["Expected answer", "Also accepted 1", "Also accepted 2", "Also accepted 3"],
+};
+
+$("#btnCreate").addEventListener("click", () => {
+  renderCreate();
+  show("scr-create");
+});
+$("#btnCreateBack").addEventListener("click", () => show("scr-upload"));
+$("#btnAddQuestion").addEventListener("click", () => {
+  drafts.push(newDraft());
+  renderCreate();
+  const cards = $("#createList").querySelectorAll(".qcard");
+  const last = cards[cards.length - 1];
+  if (last) {
+    last.scrollIntoView({ behavior: "smooth", block: "center" });
+    const ta = last.querySelector(".qin");
+    if (ta) setTimeout(() => ta.focus(), 300);
+  }
+});
+$("#btnCreateCsv").addEventListener("click", exportCreateCsv);
+$("#btnCreateStart").addEventListener("click", startCreateQuiz);
+
+function newDraft() {
+  return { text: "", type: "", answers: ["", "", "", ""], time: 20, media: "" };
+}
+
+/* ---- rendering ---- */
+function renderCreate() {
+  $("#createTitle").textContent = drafts.length
+    ? "Create quiz · " + drafts.length + (drafts.length === 1 ? " question" : " questions")
+    : "Create quiz";
+  const list = $("#createList");
+  list.innerHTML = "";
+  if (!drafts.length) {
+    list.appendChild(el("div", "cempty", "No questions yet – click “Add question” to build your quiz."));
+    return;
+  }
+  drafts.forEach((d, i) => list.appendChild(qcardEl(d, i)));
+}
+
+function qcardEl(d, idx) {
+  const card = el("div", "qcard");
+
+  /* top bar: number · type switch · move/delete */
+  const bar = el("div", "qbar");
+  bar.appendChild(el("span", "qnum", "Q" + (idx + 1)));
+  const seg = el("div", "typeseg");
+  [
+    ["", "Quiz"],
+    ["sort", "Sorting"],
+    ["input", "Text"],
+  ].forEach(([t, label]) => {
+    const b = el("button", "", label);
+    if (d.type === t) b.classList.add("on");
+    b.addEventListener("click", () => {
+      if (d.type === t) return;
+      d.type = t;
+      renderCreate();
+    });
+    seg.appendChild(b);
+  });
+  bar.appendChild(seg);
+  const ops = el("div", "qops");
+  const op = (icon, title, fn) => {
+    const b = el("button", "kbtn");
+    b.title = title;
+    b.innerHTML = '<svg class="ic"><use href="#' + icon + '"/></svg>';
+    b.addEventListener("click", fn);
+    return b;
+  };
+  ops.appendChild(
+    op("i-up", "Move up", () => {
+      if (idx < 1) return;
+      [drafts[idx - 1], drafts[idx]] = [drafts[idx], drafts[idx - 1]];
+      renderCreate();
+    }),
+  );
+  ops.appendChild(
+    op("i-down", "Move down", () => {
+      if (idx >= drafts.length - 1) return;
+      [drafts[idx + 1], drafts[idx]] = [drafts[idx], drafts[idx + 1]];
+      renderCreate();
+    }),
+  );
+  ops.appendChild(
+    op("i-x", "Delete question", () => {
+      drafts.splice(idx, 1);
+      renderCreate();
+    }),
+  );
+  bar.appendChild(ops);
+  card.appendChild(bar);
+
+  /* question text */
+  const ta = document.createElement("textarea");
+  ta.className = "qin";
+  ta.placeholder = "Question " + (idx + 1) + " …";
+  ta.value = d.text;
+  ta.addEventListener("input", () => (d.text = ta.value));
+  card.appendChild(ta);
+
+  /* answers */
+  const af = el("div", "afields");
+  const shapes = ["s-tri", "s-dia", "s-cir", "s-sqr"];
+  d.answers.forEach((val, i) => {
+    const cls = "afield" + (d.type === "sort" ? " it" + (i + 1) : i === 0 ? " ok" : "");
+    const f = el("label", cls);
+    const lbl = el("span", "albl");
+    if (d.type === "sort") lbl.innerHTML = '<svg class="ic"><use href="#' + shapes[i] + '"/></svg>';
+    else if (i === 0) lbl.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+    lbl.appendChild(el("span", "", TYPE_LABELS[d.type][i]));
+    f.appendChild(lbl);
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.value = val;
+    inp.addEventListener("input", () => (d.answers[i] = inp.value));
+    f.appendChild(inp);
+    af.appendChild(f);
+  });
+  card.appendChild(af);
+  if (d.type === "sort") card.appendChild(el("div", "sorthint", "The cards are shuffled for the players – the order above is the correct one."));
+
+  /* time + media */
+  const meta = el("div", "qmeta2");
+  const tf = el("label", "tfield");
+  tf.appendChild(el("span", "albl", "Time · seconds"));
+  const tin = document.createElement("input");
+  tin.type = "number";
+  tin.min = 5;
+  tin.max = 180;
+  tin.value = d.time;
+  tin.addEventListener("input", () => {
+    const v = parseInt(tin.value, 10);
+    d.time = isFinite(v) && v > 0 ? v : 20;
+  });
+  tf.appendChild(tin);
+  meta.appendChild(tf);
+
+  const mf = el("label", "mfield");
+  mf.appendChild(el("span", "albl", "Image · video · audio (URL)"));
+  const minp = document.createElement("input");
+  minp.type = "text";
+  minp.spellcheck = false;
+  minp.placeholder = "https://… (optional)";
+  minp.value = d.media;
+  const prev = el("div", "mprev");
+  const updPrev = () => {
+    d.media = minp.value;
+    const m = detectMedia(minp.value);
+    prev.innerHTML = "";
+    if (!m) {
+      prev.hidden = true;
+      return;
+    }
+    prev.hidden = false;
+    if (m.kind === "img") {
+      const im = document.createElement("img");
+      im.src = m.src;
+      prev.appendChild(im);
+    } else {
+      prev.appendChild(el("span", "", m.kind === "yt" ? "YouTube video" : m.kind === "audio" ? "Audio" : "Video"));
+    }
+  };
+  minp.addEventListener("input", updPrev);
+  updPrev();
+  mf.appendChild(minp);
+  mf.appendChild(prev);
+  meta.appendChild(mf);
+  card.appendChild(meta);
+
+  return card;
+}
+
+/* ---- start / export ---- */
+function draftsToRows() {
+  return drafts.map((d) => {
+    const a = d.answers.map((x) => x.trim());
+    /* "quiz" statt "" – so greift die number-ref-Erkennung von
+       buildQuiz() nie versehentlich bei numerischen Antworten  */
+    return [d.text.trim(), a[0], a[1], a[2], a[3], d.time, d.media.trim(), d.type || "quiz"];
+  });
+}
+
+function validateDrafts() {
+  if (!drafts.length) return "Add at least one question first.";
+  for (let i = 0; i < drafts.length; i++) {
+    const d = drafts[i];
+    const no = "Q" + (i + 1);
+    const a = d.answers.map((x) => x.trim());
+    if (!d.text.trim()) return no + ": the question text is missing.";
+    if (!a[0]) return no + ": the first answer field is empty.";
+    if (d.type === "sort" && a.filter(Boolean).length < 2) return no + ": sorting needs at least 2 items.";
+    if (!d.type && !a[1] && !a[2] && !a[3]) return no + ': quiz questions need at least one wrong answer (or switch the type to "Text").';
+  }
+  return null;
+}
+
+function startCreateQuiz() {
+  const err = validateDrafts();
+  if (err) {
+    toast(err, "err");
+    return;
+  }
+  try {
+    G.quiz = buildQuiz([TEMPLATE[0].slice(), ...draftsToRows()]);
+  } catch (e) {
+    toast(e.message || "The quiz could not be built.", "err");
+    return;
+  }
+  SFX.join();
+  toast("Quiz created: " + G.quiz.questions.length + " questions", "ok");
+  enterLobby();
+}
+
+function exportCreateCsv() {
+  const err = validateDrafts();
+  if (err) {
+    toast(err, "err");
+    return;
+  }
+  const rows = [TEMPLATE[0].slice(), ...draftsToRows()];
+  const csv = "\uFEFF" + rows.map((r) => r.map(csvEsc).join(";")).join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "feliz-quiz.csv";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast("CSV exported – drop it on the start page any time to play.", "ok");
+}
+
+</script>
+<!-- END js/create.js -->
+
+    
+<!-- BEGIN js/library.js -->
+<script  defer>
+"use strict";
+
+/* =============== quiz library =============== */
+/* Quizzes live in ./quize/ as CSV files. Browsers cannot enumerate
+   directories, so the list comes from quize/index.json (array of
+   paths). If that file is missing, a classic web-server directory
+   listing is parsed as a fallback.
+   NOTE: fetch() only works over http(s) – serve the folder
+   (e.g. `python -m http.server`); file:// will not work.      */
+
+const LIB = { items: null, selected: null, quiz: null, openFolders: new Set(), loadToken: 0 };
+
+$("#btnLibrary").addEventListener("click", openLibrary);
+$("#btnLibBack").addEventListener("click", () => show("scr-upload"));
+$("#libSearch").addEventListener("input", renderLibList);
+
+async function openLibrary() {
+  show("scr-library");
+  $("#libSearch").value = "";
+  LIB.selected = null;
+  LIB.quiz = null;
+  renderLibPreviewEmpty();
+  if (LIB.items) {
+    $("#libStatus").textContent = libStatusText();
+    renderLibList();
+    return;
+  }
+  const list = $("#libList");
+  list.innerHTML = "";
+  list.appendChild(el("div", "lempty", "Loading library …"));
+  $("#libStatus").textContent = "";
+  try {
+    const paths = await loadLibIndex();
+    LIB.items = itemsFromPaths(paths);
+  } catch (e) {
+    LIB.items = [];
+    $("#libStatus").textContent = "unavailable";
+    list.innerHTML = "";
+    list.appendChild(
+      el(
+        "div",
+        "lempty",
+        "The library could not be loaded.\n\n" +
+          "1) Serve the page via a web server (http://…), not directly from disk (file://…).\n" +
+          "2) Put your CSV files into the folder quize/ next to index.html.\n" +
+          '3) List them in quize/index.json, e.g. ["geo.csv", "mathematik/algebra.csv"].',
+      ),
+    );
+    return;
+  }
+  $("#libStatus").textContent = libStatusText();
+  renderLibList();
+}
+
+function libStatusText() {
+  return LIB.items.length + (LIB.items.length === 1 ? " quiz" : " quizzes");
+}
+
+/* ---- index: manifest first, directory listing as fallback ---- */
+async function loadLibIndex() {
+  try {
+    const res = await fetch("quize/index.json");
+    if (res.ok) {
+      const data = await res.json();
+      const arr = Array.isArray(data) ? data : Array.isArray(data && data.quizzes) ? data.quizzes : null;
+      if (arr) return arr.map(String);
+    }
+  } catch (e) {}
+  return await loadFromListing();
+}
+
+/* fallback: parse a server-generated directory listing */
+async function loadFromListing(sub = "", depth = 0) {
+  const res = await fetch("quize/" + sub);
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  if (!ct.includes("html") && !ct.includes("text/plain")) throw new Error("no directory listing");
+  const doc = new DOMParser().parseFromString(await res.text(), "html");
+  const base = new URL("quize/" + sub, location.href);
+  const paths = [];
+  for (const a of doc.querySelectorAll("a[href]")) {
+    const href = a.getAttribute("href");
+    if (!href || /^(https?:|\?|#|mailto:)/i.test(href)) continue;
+    let raw = "";
+    try {
+      const abs = new URL(href, base);
+      if (abs.origin !== location.origin) continue;
+      raw = abs.pathname.slice(base.pathname.length);
+    } catch (e) {
+      continue;
+    }
+    if (!raw || raw.startsWith("..")) continue;
+    if (raw.endsWith("/")) {
+      if (depth < 2) {
+        try {
+          paths.push(...(await loadFromListing(raw, depth + 1)));
+        } catch (e) {}
+      }
+    } else if (/\.csv$/i.test(raw)) {
+      paths.push(decodeURIComponent(raw));
+    }
+  }
+  return paths;
+}
+
+/* ---- helpers ---- */
+function prettyName(s) {
+  s = String(s).replace(/[_-]+/g, " ").trim();
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+function itemsFromPaths(paths) {
+  const byUrl = new Map();
+  (paths || []).forEach((p) => {
+    const clean = String(p).replace(/\\/g, "/").replace(/^\/+/, "").replace(/\/+$/, "");
+    if (!clean) return;
+    const parts = clean.split("/");
+    const file = parts.pop();
+    if (!/\.(csv|tsv|txt)$/i.test(file)) return;
+    const folder = parts.map(prettyName).join(" / ");
+    const url = "quize/" + parts.concat(file).map(encodeURIComponent).join("/");
+    byUrl.set(url, { title: prettyName(file.replace(/\.(csv|tsv|txt)$/i, "")), file, folder, url });
+  });
+  return [...byUrl.values()].sort((a, b) => a.folder.localeCompare(b.folder, "de") || a.title.localeCompare(b.title, "de"));
+}
+
+/* ---- left column: list with search + collapsible folders ---- */
+function renderLibList() {
+  const list = $("#libList");
+  if (!LIB.items) return;
+  const query = $("#libSearch").value.trim().toLowerCase();
+  list.innerHTML = "";
+  const match = (it) => !query || it.title.toLowerCase().includes(query) || it.folder.toLowerCase().includes(query);
+
+  LIB.items.filter((it) => !it.folder && match(it)).forEach((it) => list.appendChild(libItemEl(it)));
+
+  const folders = [...new Set(LIB.items.filter((it) => it.folder).map((it) => it.folder))];
+  folders.forEach((f) => {
+    const items = LIB.items.filter((it) => it.folder === f && match(it));
+    if (!items.length) return;
+    const open = !!query || LIB.openFolders.has(f);
+    const g = el("div", "lgroup" + (open ? " open" : ""));
+    const cat = el("button", "lcat");
+    cat.innerHTML = '<svg class="ic chev"><use href="#i-play"/></svg>';
+    cat.appendChild(el("span", "lcatname", f));
+    cat.appendChild(el("span", "lcnt", String(items.length)));
+    cat.addEventListener("click", () => {
+      if (LIB.openFolders.has(f)) LIB.openFolders.delete(f);
+      else LIB.openFolders.add(f);
+      renderLibList();
+    });
+    g.appendChild(cat);
+    const sub = el("div", "lsub");
+    items.forEach((it) => sub.appendChild(libItemEl(it)));
+    g.appendChild(sub);
+    list.appendChild(g);
+  });
+
+  if (!list.children.length) list.appendChild(el("div", "lempty", query ? "No quizzes match “" + query + "”." : "No quizzes found in quize/."));
+}
+
+function libItemEl(it) {
+  const b = el("button", "litem" + (LIB.selected === it ? " sel" : ""));
+  b.appendChild(el("span", "lname", it.title));
+  b.addEventListener("click", () => selectLibItem(it));
+  return b;
+}
+
+/* ---- right column: preview ---- */
+function renderLibPreviewEmpty() {
+  const pv = $("#libPreview");
+  pv.innerHTML = "";
+  pv.appendChild(el("div", "lempty", "Select a quiz on the left to see a preview."));
+}
+
+async function selectLibItem(it) {
+  if (LIB.selected === it && LIB.quiz) {
+    renderLibList();
+    return;
+  }
+  LIB.selected = it;
+  renderLibList();
+  const token = ++LIB.loadToken;
+  const pv = $("#libPreview");
+  pv.innerHTML = "";
+  pv.appendChild(el("div", "lempty", "Loading “" + it.title + "” …"));
+  try {
+    const res = await fetch(it.url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const buf = await res.arrayBuffer();
+    const text = decodeBuf(buf);
+    const quiz = buildQuiz(parseCSV(text, sniff(text)));
+    if (token !== LIB.loadToken) return;
+    LIB.quiz = quiz;
+    renderLibPreview(it);
+  } catch (e) {
+    if (token !== LIB.loadToken) return;
+    LIB.quiz = null;
+    pv.innerHTML = "";
+    pv.appendChild(el("div", "lempty", "Could not load the quiz: " + (e.message || e) + "\nIs " + it.url + " reachable?"));
+  }
+}
+
+function renderLibPreview(it) {
+  const qz = LIB.quiz;
+  const pv = $("#libPreview");
+  pv.innerHTML = "";
+
+  const head = el("div", "pvhead");
+  head.appendChild(el("div", "pvname", it.title));
+  const play = el("button", "pill");
+  play.innerHTML = '<svg class="ic"><use href="#i-play"/></svg>';
+  play.appendChild(el("span", "", "Play quiz"));
+  play.addEventListener("click", () => {
+    G.quiz = qz;
+    SFX.join();
+    toast("Library quiz loaded: " + qz.questions.length + " questions", "ok");
+    enterLobby();
+  });
+  head.appendChild(play);
+  head.appendChild(el("div", "pvmeta", qz.questions.length + " questions" + (qz.skipped ? " · " + qz.skipped + " rows skipped" : "")));
+  pv.appendChild(head);
+
+  const list = el("div", "pvlist");
+  const MAX = 5;
+  qz.questions.slice(0, MAX).forEach((q, i) => list.appendChild(pvQEl(q, i)));
+  pv.appendChild(list);
+  if (qz.questions.length > MAX)
+    pv.appendChild(el("div", "pvmore", "… " + (qz.questions.length - MAX) + " more question" + (qz.questions.length - MAX === 1 ? "" : "s")));
+}
+
+function pvQEl(q, idx) {
+  const c = el("div", "pvq");
+  const top = el("div", "pvqtop");
+  top.appendChild(el("span", "pvnum", "Q" + (idx + 1)));
+  top.appendChild(el("span", "pvtype", qTypeName(q)));
+  c.appendChild(top);
+  c.appendChild(el("div", "pvtext", q.text));
+  if (q.media) {
+    if (q.media.kind === "img") {
+      const box = el("div", "pvmedia");
+      const im = document.createElement("img");
+      im.src = q.media.src;
+      im.loading = "lazy";
+      box.appendChild(im);
+      c.appendChild(box);
+    } else {
+      c.appendChild(el("div", "pvmedia", q.media.kind === "yt" || q.media.kind === "embed" ? "Video" : "Audio"));
+    }
+  }
+  const ans = el("div", "pvans");
+  if (q.type === "order") {
+    q.correctOrder.forEach((di, pos) => {
+      const r = el("div", "pvrow it" + Math.min(pos + 1, 4));
+      r.appendChild(el("span", "pvpos", String(pos + 1)));
+      r.appendChild(el("span", "", q.answers[di]));
+      ans.appendChild(r);
+    });
+  } else if (q.type === "input") {
+    const r = el("div", "pvrow ok");
+    r.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+    r.appendChild(el("span", "", q.accept[0]));
+    ans.appendChild(r);
+    if (q.accept.length > 1) {
+      const r2 = el("div", "pvrow");
+      r2.appendChild(el("span", "", "also:"));
+      q.accept.slice(1).forEach((a) => r2.appendChild(el("span", "pvchip", a)));
+      ans.appendChild(r2);
+    }
+  } else {
+    q.answers.forEach((a, i) => {
+      const r = el("div", "pvrow" + (i === q.correct ? " ok" : ""));
+      if (i === q.correct) r.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+      else r.appendChild(el("span", "pvdot", ""));
+      r.appendChild(el("span", "", a));
+      ans.appendChild(r);
+    });
+  }
+  c.appendChild(ans);
+  return c;
+}
+
+</script>
+<!-- END js/library.js -->
+
+    
 <!-- BEGIN js/client.js -->
 <script  defer>
 "use strict";
@@ -4451,9 +5678,9 @@ fileInput.addEventListener("change", (e) => {
   e.target.value = ""; // gleiche Datei erneut wählbar
 });
 
-/* FIX 4: CSV-Template wird jetzt mit korrektem Escaping erzeugt
-   (csvEsc aus import.js) – Semikolons in Inhalten überleben den
-   CSV-Roundtrip, das Template enthält erklärende #-Zeilen. */
+/* FIX 4: CSV-Template wird mit korrektem Escaping erzeugt (csvEsc aus
+   import.js) – Semikolons in Inhalten überleben den CSV-Roundtrip,
+   das Template enthält erklärende #-Kommentarzeilen. */
 $("#btnTemplate").addEventListener("click", () => {
   const csv = "\uFEFF" + TEMPLATE.map((r) => r.map(csvEsc).join(";")).join("\r\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -4463,6 +5690,21 @@ $("#btnTemplate").addEventListener("click", () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 });
+
+/* if the browser blocked media autoplay once (e.g. archive.org audio),
+   retry on any interaction – the host clicks during the game anyway */
+["pointerdown", "keydown"].forEach((ev) =>
+  document.addEventListener(
+    ev,
+    () => {
+      document.querySelectorAll("audio, video").forEach((m) => {
+        if (m.src && m.paused && m.autoplay) m.play().catch(() => {});
+      });
+    },
+    true,
+  ),
+);
+
 $("#btnStart").addEventListener("click", startGame);
 $("#btnBots").addEventListener("click", () => addBots(5));
 $("#btnExit").addEventListener("click", () => {
