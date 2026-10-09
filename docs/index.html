@@ -5033,7 +5033,7 @@ function exportCreateCsv() {
    listing is parsed as a fallback.
    NOTE: fetch() only works over http(s) – serve the folder
    (e.g. `python -m http.server`); file:// will not work.      */
-
+const LIB_DIR = "docs/quize/";
 const LIB = { items: null, selected: null, quiz: null, openFolders: new Set(), loadToken: 0 };
 
 $("#btnLibrary").addEventListener("click", openLibrary);
