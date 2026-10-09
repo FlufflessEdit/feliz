@@ -750,7 +750,6 @@
           transform: scale(1.04);
         }
       }
-      /* text-entry question card (host) */
       .ans.inputcard {
         background: var(--panel);
         box-shadow: none;
@@ -1428,7 +1427,6 @@
         background: rgba(255, 255, 255, 0.35);
         color: #1b1b1b;
       }
-      /* text-entry question (client) */
       .cinput {
         flex: 1;
         display: flex;
@@ -1709,7 +1707,7 @@
         <circle cx="35" cy="13" r="5.5" fill="currentColor" />
         <circle cx="24" cy="26" r="14" fill="currentColor" />
         <circle cx="18.5" cy="23" r="2.5" fill="#1b1b1b" />
-        <circle cx="29.5" cy="23" r="2.5" fill="#1b1b1b" />
+        <circle cx="29.5" cy="23" r="2.5" fill="#1b1b" />
         <ellipse cx="24" cy="31" rx="5" ry="3.6" fill="#1b1b1b" />
       </symbol>
       <symbol id="a-owl" viewBox="0 0 48 48">
@@ -2056,7 +2054,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js" defer></script>
     <script defer>
       "use strict";
-      console.info("[Feliz] v2.10 · text-entry questions + sorting on every import path");
+      console.info('[Feliz] v2.11 · Kahoot "jumble" = sorting question, sup-HTML → ²');
       /* =============== helpers =============== */
       const $ = (s) => document.querySelector(s);
       function el(tag, cls, txt) {
@@ -2668,14 +2666,48 @@
         }
       }
 
-      /* ---- Kahoot JSON -> Feliz rows / questions ---- */
+      /* ---- Kahoot JSON -> Feliz rows / questions ----
+         Ordering questions are type "jumble" in Kahoot: all choices carry
+         correct:true and the JSON order IS the target order.                 */
       const KAHOOT_FILLERS = ["Neither of these", "Both of these", "Cannot be determined"];
       const TXT_ORDER = " \u2013 Which order is correct?";
       const TXT_SELECTALL = " \u2013 Select all correct answers:";
 
       const ANSWER_TYPES = ["type_answer", "open_ended"];
-      const ORDER_RE = /order|sort|rank|sequen|puzzle|reorder|drag|arrange/i;
+      const ORDER_RE = /order|sort|rank|sequen|puzzle|jumble|reorder|drag|arrange/i;
       const POLL_RE = /poll|survey|word_?cloud|brainstorm|collect|slide|feedback|opinion|quiz_?poll|slider/i;
+
+      /* convert Kahoot's HTML snippets: 10<sup>2</sup> -> 10² */
+      const SUPCH = {
+        0: "\u2070",
+        1: "\u00B9",
+        2: "\u00B2",
+        3: "\u00B3",
+        4: "\u2074",
+        5: "\u2075",
+        6: "\u2076",
+        7: "\u2077",
+        8: "\u2078",
+        9: "\u2079",
+        "-": "\u207B",
+        "+": "\u207A",
+      };
+      function formatText(v) {
+        let s = String(v == null ? "" : v);
+        s = s.replace(/<sup>([^<]*)<\/sup>/gi, (all, d) =>
+          String(d)
+            .split("")
+            .map((c) => SUPCH[c] || c)
+            .join(""),
+        );
+        s = s.replace(/<[^>]+>/g, "");
+        s = s
+          .replace(/&nbsp;/g, " ")
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">");
+        return s.trim();
+      }
 
       function getQuestions(data) {
         if (Array.isArray(data)) {
@@ -2711,8 +2743,8 @@
                 : [];
         return raw
           .map((c) => {
-            if (typeof c === "string") return { text: c.trim(), correct: false, order: null };
-            const text = String((c && (c.answer || c.text || c.choice || c.label || c.title || c.value)) || "").trim();
+            if (typeof c === "string") return { text: formatText(c), correct: false, order: null };
+            const text = formatText(c && (c.answer || c.text || c.choice || c.label || c.title || c.value));
             let order = null;
             if (c && typeof c === "object") {
               for (const k of ["order", "position", "index", "rank", "sequence"]) {
@@ -2745,10 +2777,27 @@
           if (typeof a === "string" && a.trim()) return { kind: "audio", src: a.trim() };
         }
         const v = q.video;
+        if (
+          v &&
+          typeof v === "object" &&
+          v.id &&
+          String(v.service || v.type || "")
+            .toLowerCase()
+            .includes("youtube") &&
+          !String(v.fullUrl || "") === false
+        ) {
+        }
+        if (v && typeof v === "object" && String(v.fullUrl || "") !== "") {
+          const id = String(v.id || "").trim();
+          const svc = String(v.service || v.type || "").toLowerCase();
+          if (!id && !svc.includes("youtube") && !/^https?:/.test(String(v.fullUrl))) {
+            /*empty*/
+          }
+        }
         if (v && typeof v === "object") {
           const id = String(v.id || "").trim();
           const svc = String(v.service || v.type || "").toLowerCase();
-          if (id && svc.includes("youtube")) {
+          if (id && svc.includes("youtube") && v.fullUrl !== "") {
             let start = Number(v.startTime),
               end = Number(v.endTime);
             if (Number.isFinite(start) && start > 0) start = start >= 1000 ? start / 1000 : start;
@@ -2757,7 +2806,6 @@
             else end = 0;
             return { kind: "yt", id, start: Math.round(start), end: Math.round(end) };
           }
-          if (id) return { kind: "embed", src: String(v.url || v.src || "") };
         }
         let img = String(q.image || "").trim();
         if (!img && q.imageMetadata && typeof q.imageMetadata === "object") {
@@ -2767,11 +2815,10 @@
         return img ? { kind: "img", src: img } : null;
       }
 
-      /* all accepted answers of a type-answer question (string / array / choices) */
       function collectAccepted(q) {
         const out = [];
         const push = (s) => {
-          s = String(s || "").trim();
+          s = formatText(s);
           if (s && !out.includes(s)) out.push(s);
         };
         if (typeof q.answer === "string") push(q.answer);
@@ -2786,13 +2833,21 @@
         return [...new Set(arr)];
       }
 
+      /* ordering detection – by type name ("jumble"!) or structure.
+         Jumble signature: EVERY choice is marked correct, and the JSON order
+         is the target order; the "no choice marked" case is also supported. */
       function orderInfo(q) {
         const type = String((q && q.type) || "quiz").toLowerCase();
         const choices = extractChoices(q);
         const corr = choices.filter((c) => c.correct).length;
         const typeSaysOrder = ORDER_RE.test(type);
         const structSaysOrder =
-          !typeSaysOrder && !ANSWER_TYPES.includes(type) && type !== "true_false" && !POLL_RE.test(type) && corr === 0 && choices.length >= 2;
+          !typeSaysOrder &&
+          !ANSWER_TYPES.includes(type) &&
+          type !== "true_false" &&
+          !POLL_RE.test(type) &&
+          choices.length >= 2 &&
+          (corr === 0 || corr === choices.length);
         if (!(typeSaysOrder || structSaysOrder)) return null;
         let items;
         if (choices.every((c) => c.order != null)) {
@@ -2803,18 +2858,16 @@
         } else items = choices.map((c) => c.text);
         items = dedupe(items);
         if (items.length < 2) return null;
-        return { items, text: String((q && (q.question || q.title)) || "").trim(), time: jsonSeconds(q), media: jsonMedia(q) };
+        return { items, text: formatText(q && (q.question || q.title)), time: jsonSeconds(q), media: jsonMedia(q) };
       }
 
-      /* rows for the CSV export (CSV cannot sort or type, so these become
-         multiple-choice fallbacks there); skipOrder leaves ordering questions
-         to the real question builder                                            */
+      /* rows for the CSV export (sorting becomes the MC fallback there) */
       function kahootToRows(data, skipOrder) {
         const rows = [],
           skipped = [];
         getQuestions(data).forEach((q, i) => {
           const no = "Q" + (i + 1);
-          const question = String((q && (q.question || q.title)) || "").trim();
+          const question = formatText(q && (q.question || q.title));
           if (!question) {
             skipped.push(no + ": empty question");
             return;
@@ -2853,8 +2906,6 @@
 
           if (ANSWER_TYPES.includes(type)) {
             const accept = collectAccepted(q);
-            /* CSV: only the expected answer, no wrong ones -> becomes a text-entry
-               question when the CSV is loaded back                              */
             if (accept.length) {
               rows.push([question, accept[0], "", "", "", time, media]);
               return;
@@ -2863,22 +2914,25 @@
             return;
           }
 
-          const corrText = corr;
-          if (corrText.length === 0) {
+          if (corr.length === 0) {
+            if (wrong.length === 0 && collectAccepted(q).length) {
+              rows.push([question, collectAccepted(q)[0], "", "", "", time, media]);
+              return;
+            }
             skipped.push(no + ': question type "' + type + '" is not supported yet – see browser console');
             console.info("[Feliz] unsupported question " + no + ' (type "' + type + '"):', JSON.stringify(q));
             return;
           }
-          if (corrText.length === 1) {
-            rows.push([question, corrText[0], wrong[0] || "", wrong[1] || "", wrong[2] || "", time, media]);
+          if (corr.length === 1) {
+            rows.push([question, corr[0], wrong[0] || "", wrong[1] || "", wrong[2] || "", time, media]);
             return;
           }
-          const correctText = corrText.join(" + ");
+          const correctText = corr.join(" + ");
           const cand = [];
-          if (corrText.length > 1) cand.push(corrText.slice(1).join(" + "));
-          if (wrong.length) cand.push(corrText.slice(0, -1).concat(wrong[0]).join(" + "));
+          if (corr.length > 1) cand.push(corr.slice(1).join(" + "));
+          if (wrong.length) cand.push(corr.slice(0, -1).concat(wrong[0]).join(" + "));
           if (wrong.length) cand.push(wrong.slice(0, 2).join(" + "));
-          if (corrText.length > 2) cand.push(corrText.slice(0, -1).join(" + "));
+          if (corr.length > 2) cand.push(corr.slice(0, -1).join(" + "));
           let w = dedupe(cand.filter((x) => x && x !== correctText)).slice(0, 3);
           while (w.length < 1) w.push(KAHOOT_FILLERS[w.length]);
           rows.push([question + TXT_SELECTALL, correctText, w[0] || "", w[1] || "", w[2] || "", time, media]);
@@ -2886,12 +2940,12 @@
         return { rows, skipped };
       }
 
-      /* real questions: multiple choice + sorting + text entry (used by every import path) */
+      /* real questions: multiple choice + sorting + text entry (all import paths) */
       function kahootToQuestions(data) {
         const { rows, skipped } = kahootToRows(data, true);
         const questions = rows.length ? buildQuiz([TEMPLATE[0].slice(), ...rows.map((r) => r.slice())]).questions : [];
-        getQuestions(data).forEach((q, i) => {
-          const text = String((q && (q.question || q.title)) || "").trim();
+        getQuestions(data).forEach((q) => {
+          const text = formatText(q && (q.question || q.title));
           if (!text) return;
           const type = String((q && q.type) || "quiz").toLowerCase();
           const oi = orderInfo(q);
@@ -2920,8 +2974,8 @@
         return { questions, skippedCount: skipped.length, skipped };
       }
 
-      /* load a Kahoot quiz directly (all import paths).
-         alsoSave=true additionally downloads the CSV copy. */
+      /* load a Kahoot quiz directly (all import paths). alsoSave=true
+         additionally downloads the CSV copy.                                */
       function loadKahootQuiz(data, alsoSave) {
         const { questions, skippedCount, skipped } = kahootToQuestions(data);
         if (!questions.length) {
@@ -2931,7 +2985,6 @@
         G.quiz = { questions, skipped: skippedCount, source: "kahoot" };
         SFX.join();
         if (alsoSave) {
-          /* CSV copy for archiving (sorting/input become their CSV fallback forms) */
           try {
             const { rows } = kahootToRows(data, false);
             if (rows.length) {
@@ -3186,7 +3239,6 @@
                 ? detectMedia(String(rawMedia == null ? "" : rawMedia).trim())
                 : null;
           if (wrongs.length < 1) {
-            /* no wrong answers given: the students type the answer */
             questions.push({
               text,
               time: t,
@@ -3642,7 +3694,6 @@
         const SHAPES = ["s-tri", "s-dia", "s-cir", "s-sqr"];
         answerEls = [];
         if (q.type === "input") {
-          /* text-entry question: one card that later reveals the answer */
           anscol.style.gridTemplateRows = "1fr";
           const card = el("div", "ans in inputcard");
           card.innerHTML = '<svg class="ic"><use href="#i-pencil"/></svg><span>Type the answer on your device</span>';
@@ -3829,10 +3880,9 @@
           limitMs = q.time * 1000;
         G.players.forEach((p) => {
           const a = p.answered;
-          let ok = false,
-            pts = 0,
+          const ok = answerIsCorrect(q, a);
+          let pts = 0,
             bonus = 0;
-          ok = answerIsCorrect(q, a);
           if (ok) {
             pts = Math.round(1000 * (1 - a.ms / limitMs / 2));
             bonus = Math.min(Math.max(p.streak, 0) * 100, 500);
@@ -3849,7 +3899,7 @@
           if (!p) return;
           c.send({ t: "feedback", ok: p.lastDelta > 0, pts: p.lastDelta, streak: p.streak, rank: rankMap.get(p) || ranked.length });
         });
-        const counts = q.type || !Array.isArray(q.answers) ? [] : new Array(q.answers.length).fill(0);
+        const counts = !q.type && Array.isArray(q.answers) ? new Array(q.answers.length).fill(0) : [];
         if (!q.type)
           G.players.forEach((p) => {
             if (p.answered) counts[p.answered.sel]++;
@@ -4198,7 +4248,6 @@
             const btns = $("#cqBtns");
             const foot = $("#cqFoot");
             if (m.type === "input") {
-              /* text-entry: input field + OK, Enter confirms */
               btns.className = "cinput";
               btns.style.gridTemplateColumns = "";
               btns.innerHTML = "";
