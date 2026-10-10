@@ -2479,9 +2479,6 @@ body.ingame #chrome {
             <button class="ghost" id="btnCreate">
               <svg class="ic"><use href="#i-pencil" /></svg>Create quiz
             </button>
-            <button class="ghost" id="btnTemplate">
-              <svg class="ic"><use href="#i-copy" /></svg>Download CSV template
-            </button>
             <div class="flipwrap" id="flipWrap">
               <div class="flipcard" id="flipCard">
                 <div class="flipface flipfront">
@@ -2512,6 +2509,9 @@ body.ingame #chrome {
             </button>
             <h2 id="createTitle">Create quiz</h2>
             <div class="cacts">
+              <button class="ghost" id="btnExamples">
+                <svg class="ic"><use href="#i-dice" /></svg>Example questions
+              </button>
               <button class="ghost" id="btnCreateCsv">
                 <svg class="ic"><use href="#i-download" /></svg>Export CSV
               </button>
@@ -2524,7 +2524,10 @@ body.ingame #chrome {
           <button class="ghost addq" id="btnAddQuestion">
             <svg class="ic"><use href="#i-plus" /></svg>Add question
           </button>
-          <div class="chint">Sorting items are stored in target order · “Export CSV” saves your quiz for the drop zone and Excel.</div>
+          <div class="chint">
+            Sorting items are stored in target order · “Example questions” loads 4 demo questions · “Export CSV” saves your quiz for the drop zone and
+            Excel.
+          </div>
         </div>
       </section>
 
@@ -4809,6 +4812,36 @@ $("#btnAddQuestion").addEventListener("click", () => {
 $("#btnCreateCsv").addEventListener("click", exportCreateCsv);
 $("#btnCreateStart").addEventListener("click", startCreateQuiz);
 
+/* Beispiel-Fragen aus dem Template direkt in den Editor laden */
+$("#btnExamples").addEventListener("click", () => {
+  let first = -1,
+    added = 0;
+  TEMPLATE.forEach((r, i) => {
+    if (i === 0) return; /* header row */
+    const firstCell = String(r[0] || "").trim();
+    if (!firstCell || firstCell.startsWith("#")) return; /* comment rows */
+    if (first < 0) first = drafts.length;
+    drafts.push({
+      text: firstCell,
+      type: r[7] === "quiz" ? "" : String(r[7] || "").trim(),
+      answers: [r[1], r[2], r[3], r[4]].map((x) => String(x == null ? "" : x)),
+      time: Number(r[5]) || 20,
+      media: String(r[6] || ""),
+    });
+    added++;
+  });
+  if (!added) {
+    toast("No example questions found in the template.", "err");
+    return;
+  }
+  renderCreate();
+  SFX.select();
+  toast(added + " example questions added – adapt them to your needs.", "ok");
+  const cards = $("#createList").querySelectorAll(".qcard");
+  const target = cards[Math.min(first, cards.length - 1)];
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 function newDraft() {
   return { text: "", type: "", answers: ["", "", "", ""], time: 20, media: "" };
 }
@@ -5028,13 +5061,17 @@ function exportCreateCsv() {
 
 /* =============== quiz library =============== */
 /* Quizzes live in ./quize/ as CSV files. Browsers cannot enumerate
-   directories, so the list comes from quize/index.json (array of
-   paths). If that file is missing, a classic web-server directory
-   listing is parsed as a fallback.
-   NOTE: fetch() only works over http(s) – serve the folder
-   (e.g. `python -m http.server`); file:// will not work.      */
-const LIB_DIR = "docs/quize/";
-const LIB = { items: null, selected: null, quiz: null, openFolders: new Set(), loadToken: 0 };
+   directories, so the list comes from index.json (array of paths)
+   inside the folder. If that file is missing, a classic web-server
+   directory listing is parsed as a fallback.
+   The folder itself is searched in several locations (LIB_DIRS), so
+   deployments from a "docs/" subfolder work as well.
+   NOTE: fetch() only works over http(s) – file:// will not work. */
+
+const LIB = { items: null, dir: "", selected: null, quiz: null, openFolders: new Set(), loadToken: 0 };
+
+/* folder candidates – tried in this order */
+const LIB_DIRS = ["quize/", "docs/quize/"];
 
 $("#btnLibrary").addEventListener("click", openLibrary);
 $("#btnLibBack").addEventListener("click", () => show("scr-upload"));
@@ -5068,12 +5105,13 @@ async function openLibrary() {
         "lempty",
         "The library could not be loaded.\n\n" +
           "1) Serve the page via a web server (http://…), not directly from disk (file://…).\n" +
-          "2) Put your CSV files into the folder quize/ next to index.html.\n" +
-          '3) List them in quize/index.json, e.g. ["geo.csv", "mathematik/algebra.csv"].',
+          "2) The folder quize/ (or docs/quize/) must sit next to index.html and contain your CSV files.\n" +
+          '3) List them in index.json inside that folder, e.g. ["geo.csv", "mathematik/algebra.csv"].',
       ),
     );
     return;
   }
+  console.info("[Feliz] library folder:", LIB.dir);
   $("#libStatus").textContent = libStatusText();
   renderLibList();
 }
@@ -5082,27 +5120,43 @@ function libStatusText() {
   return LIB.items.length + (LIB.items.length === 1 ? " quiz" : " quizzes");
 }
 
-/* ---- index: manifest first, directory listing as fallback ---- */
+/* ---- index: manifest first (in every folder candidate),
+        directory listing as fallback                      ---- */
 async function loadLibIndex() {
-  try {
-    const res = await fetch(LIB_DIR + "index.json");
-    if (res.ok) {
-      const data = await res.json();
-      const arr = Array.isArray(data) ? data : Array.isArray(data && data.quizzes) ? data.quizzes : null;
-      if (arr) return arr.map(String);
+  let lastErr = null;
+  for (const dir of LIB_DIRS) {
+    try {
+      const res = await fetch(dir + "index.json");
+      if (res.ok) {
+        const data = await res.json();
+        const arr = Array.isArray(data) ? data : Array.isArray(data && data.quizzes) ? data.quizzes : null;
+        if (arr) {
+          LIB.dir = dir;
+          return arr.map(String);
+        }
+      }
+    } catch (e) {}
+    try {
+      const paths = await loadFromListing(dir);
+      if (paths.length) {
+        LIB.dir = dir;
+        return paths;
+      }
+    } catch (e) {
+      lastErr = e;
     }
-  } catch (e) {}
-  return await loadFromListing();
+  }
+  throw lastErr || new Error("no quiz folder found");
 }
 
 /* fallback: parse a server-generated directory listing */
-async function loadFromListing(sub = "", depth = 0) {
-  const res = await fetch(LIB_DIR + sub);
+async function loadFromListing(dir, sub = "", depth = 0) {
+  const res = await fetch(dir + sub);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const ct = (res.headers.get("content-type") || "").toLowerCase();
   if (!ct.includes("html") && !ct.includes("text/plain")) throw new Error("no directory listing");
   const doc = new DOMParser().parseFromString(await res.text(), "html");
-  const base = new URL(LIB_DIR + sub, location.href);
+  const base = new URL(dir + sub, location.href);
   const paths = [];
   for (const a of doc.querySelectorAll("a[href]")) {
     const href = a.getAttribute("href");
@@ -5119,7 +5173,7 @@ async function loadFromListing(sub = "", depth = 0) {
     if (raw.endsWith("/")) {
       if (depth < 2) {
         try {
-          paths.push(...(await loadFromListing(raw, depth + 1)));
+          paths.push(...(await loadFromListing(dir, raw, depth + 1)));
         } catch (e) {}
       }
     } else if (/\.csv$/i.test(raw)) {
@@ -5143,7 +5197,7 @@ function itemsFromPaths(paths) {
     const file = parts.pop();
     if (!/\.(csv|tsv|txt)$/i.test(file)) return;
     const folder = parts.map(prettyName).join(" / ");
-    const url = LIB_DIR + parts.concat(file).map(encodeURIComponent).join("/");
+    const url = LIB.dir + parts.concat(file).map(encodeURIComponent).join("/");
     byUrl.set(url, { title: prettyName(file.replace(/\.(csv|tsv|txt)$/i, "")), file, folder, url });
   });
   return [...byUrl.values()].sort((a, b) => a.folder.localeCompare(b.folder, "de") || a.title.localeCompare(b.title, "de"));
@@ -5181,7 +5235,7 @@ function renderLibList() {
     list.appendChild(g);
   });
 
-  if (!list.children.length) list.appendChild(el("div", "lempty", query ? "No quizzes match “" + query + "”." : "No quizzes found in quize/."));
+  if (!list.children.length) list.appendChild(el("div", "lempty", query ? "No quizzes match “" + query + "”." : "No quizzes found."));
 }
 
 function libItemEl(it) {
@@ -5676,19 +5730,6 @@ $("#btnBrowse").addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", (e) => {
   if (e.target.files[0]) handleFile(e.target.files[0]);
   e.target.value = ""; // gleiche Datei erneut wählbar
-});
-
-/* FIX 4: CSV-Template wird mit korrektem Escaping erzeugt (csvEsc aus
-   import.js) – Semikolons in Inhalten überleben den CSV-Roundtrip,
-   das Template enthält erklärende #-Kommentarzeilen. */
-$("#btnTemplate").addEventListener("click", () => {
-  const csv = "\uFEFF" + TEMPLATE.map((r) => r.map(csvEsc).join(";")).join("\r\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "quiz-template.csv";
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 });
 
 /* if the browser blocked media autoplay once (e.g. archive.org audio),
