@@ -2257,6 +2257,80 @@ body.ingame #chrome {
     padding: 72px 14px 18px;
   }
 }
+/* ===== solo mode ===== */
+.bigstart.solo {
+  background: var(--panel2);
+  color: var(--ink);
+  box-shadow:
+    inset 0 -6px 0 rgba(0, 0, 0, 0.25),
+    0 14px 34px rgba(0, 0, 0, 0.35);
+}
+.bigstart.solo:hover {
+  background: var(--paper);
+  transform: translateY(-2px);
+}
+.anscol.soloable .ans {
+  cursor: pointer;
+}
+.anscol.soloable .ans:hover {
+  filter: brightness(1.15);
+}
+.ans.sel {
+  outline: 5px solid rgba(255, 255, 255, 0.9);
+  outline-offset: -5px;
+}
+.anscol.soloable.orderq .ans {
+  padding-left: 52px;
+}
+.sopos {
+  position: absolute;
+  top: 8px;
+  left: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  z-index: 3;
+  pointer-events: none;
+}
+.ans.a3 .sopos {
+  background: rgba(255, 255, 255, 0.4);
+  color: #1b1b1b;
+}
+.ans.inputcard input {
+  flex: 1;
+  min-width: 140px;
+  max-width: 380px;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 600;
+  outline: none;
+}
+.ans.inputcard input:focus {
+  border-color: var(--acc);
+}
+.ans.inputcard input:disabled {
+  opacity: 0.5;
+}
+.soloconfirm {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  animation: pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
 
 </style>
 <!-- END css/style.css -->
@@ -2454,6 +2528,10 @@ body.ingame #chrome {
         <path d="M6.5 2H20v17.5H6.5A2.5 2.5 0 0 1 4 17V4.5A2.5 2.5 0 0 1 6.5 2z" />
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
       </symbol>
+      <symbol id="i-user" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" />
+      </symbol>
     </svg>
 
     <!-- ====== Host UI ====== -->
@@ -2566,6 +2644,9 @@ body.ingame #chrome {
             <div class="startrow">
               <button class="bigstart" id="btnStart">
                 <svg class="ic"><use href="#i-play" /></svg>Start quiz
+              </button>
+              <button class="bigstart solo" id="btnSolo">
+                <svg class="ic"><use href="#i-user" /></svg>Solo
               </button>
               <label class="chk"
                 ><input type="checkbox" id="chkShuffle" /><svg class="ic"><use href="#i-shuffle" /></svg>Shuffle questions</label
@@ -3979,6 +4060,7 @@ const G = {
   peer: null,
   players: [],
   started: false,
+  solo: false,
   state: "idle",
   order: [],
   qi: -1,
@@ -4101,6 +4183,7 @@ function conns() {
 
 function enterLobby() {
   G.started = false;
+  G.solo = false;
   G.players = [];
   seq = 0;
   G.code = makeCode();
@@ -4277,6 +4360,88 @@ function startGame() {
   conns().forEach((c) => c.send({ t: "start" }));
   nextQuestion();
 }
+
+/* =============== solo mode =============== */
+function startSolo() {
+  if (!G.quiz) return;
+  if (!G.players.some((p) => p.solo)) {
+    const nm = randomName();
+    G.players.push({
+      id: "s" + ++seq,
+      conn: null,
+      name: "You",
+      animal: nm.animal,
+      color: COLORS[0],
+      bot: false,
+      solo: true,
+      skill: 0,
+      score: 0,
+      streak: 0,
+      lastDelta: 0,
+      answered: null,
+      alive: true,
+    });
+    renderLobby();
+  }
+  G.solo = true;
+  startGame();
+}
+
+/* answers become clickable directly on the host screen */
+let soloOrder = [];
+let soloConfirm = null;
+function wireSoloAnswers(q) {
+  anscolEl.classList.add("soloable");
+  soloOrder = [];
+  soloConfirm = null;
+  if (q.type === "order") {
+    anscolEl.classList.add("orderq");
+    answerEls.forEach((b) => b.appendChild(el("span", "sopos", "")));
+    soloConfirm = el("button", "pill soloconfirm");
+    soloConfirm.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+    soloConfirm.appendChild(el("span", "", "OK"));
+    soloConfirm.hidden = true;
+    soloConfirm.addEventListener("click", () => {
+      if (G.state !== "active" || soloOrder.length !== answerEls.length) return;
+      const me = G.players.find((p) => p.solo);
+      if (!me || me.answered) return;
+      soloConfirm.hidden = true;
+      recordAnswer(me, soloOrder.slice(), performance.now() - G.qT0);
+    });
+    stageRoot.appendChild(soloConfirm);
+    answerEls.forEach((b, i) => {
+      b.addEventListener("click", () => {
+        if (G.state !== "active") return;
+        const me = G.players.find((p) => p.solo);
+        if (!me || me.answered) return;
+        const pos = soloOrder.indexOf(i);
+        if (pos >= 0) soloOrder.splice(pos, 1);
+        else soloOrder.push(i);
+        SFX.select();
+        updateSoloOrder();
+      });
+    });
+  } else {
+    answerEls.forEach((b, i) => {
+      b.addEventListener("click", () => {
+        if (G.state !== "active") return;
+        const me = G.players.find((p) => p.solo);
+        if (!me || me.answered) return;
+        answerEls.forEach((x) => x.classList.remove("sel"));
+        b.classList.add("sel");
+        SFX.select();
+        recordAnswer(me, i, performance.now() - G.qT0);
+      });
+    });
+  }
+}
+function updateSoloOrder() {
+  answerEls.forEach((b, i) => {
+    const badge = b.querySelector(".sopos");
+    if (badge) badge.textContent = soloOrder.indexOf(i) >= 0 ? String(soloOrder.indexOf(i) + 1) : "";
+  });
+  if (soloConfirm) soloConfirm.hidden = soloOrder.length !== answerEls.length;
+}
 function qTypeName(q) {
   if (!q || !q.type) return "Question";
   if (q.type === "order") return "Sorting question";
@@ -4344,7 +4509,6 @@ function renderStage(q) {
       if (q.media.src) {
         au.src = q.media.src;
       } else if (q.media.iaItem) {
-        /* archive.org item link – resolve the audio file first */
         resolveArchiveAudio(q.media.iaItem).then((src) => {
           if (src) {
             au.src = src;
@@ -4369,7 +4533,39 @@ function renderStage(q) {
   if (q.type === "input") {
     anscol.style.gridTemplateRows = "1fr";
     const card = el("div", "ans in inputcard");
-    card.innerHTML = '<svg class="ic"><use href="#i-pencil"/></svg><span>Type the answer on your device</span>';
+    if (G.solo) {
+      card.innerHTML = '<svg class="ic"><use href="#i-pencil"/></svg>';
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.placeholder = "Type your answer …";
+      inp.autocomplete = "off";
+      inp.spellcheck = false;
+      const okBtn = el("button", "pill", "OK");
+      card.appendChild(inp);
+      card.appendChild(okBtn);
+      const send = () => {
+        if (G.state !== "active") return;
+        const me = G.players.find((p) => p.solo);
+        if (!me || me.answered) return;
+        const val = inp.value.trim();
+        if (!val) return;
+        inp.disabled = true;
+        okBtn.disabled = true;
+        SFX.select();
+        recordAnswer(me, val.slice(0, 64), performance.now() - G.qT0);
+      };
+      okBtn.addEventListener("click", send);
+      inp.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") send();
+      });
+      setTimeout(() => {
+        try {
+          inp.focus();
+        } catch (e) {}
+      }, 1600);
+    } else {
+      card.innerHTML = '<svg class="ic"><use href="#i-pencil"/></svg><span>Type the answer on your device</span>';
+    }
     anscol.appendChild(card);
     answerEls.push(card);
   } else {
@@ -4386,6 +4582,7 @@ function renderStage(q) {
   stage.appendChild(anscol);
   anscolEl = anscol;
   stageRoot.appendChild(stage);
+  if (G.solo && q.type !== "input") wireSoloAnswers(q);
 }
 function playIntro() {
   G.state = "intro";
@@ -5747,6 +5944,7 @@ fileInput.addEventListener("change", (e) => {
 );
 
 $("#btnStart").addEventListener("click", startGame);
+$("#btnSolo").addEventListener("click", startSolo);
 $("#btnBots").addEventListener("click", () => addBots(5));
 $("#btnExit").addEventListener("click", () => {
   if (!G.started) {
@@ -5777,6 +5975,9 @@ introOverlay.addEventListener("click", () => {
 });
 window.addEventListener("keydown", (e) => {
   if (document.body.classList.contains("client")) return;
+  /* typing in a field (solo text answer, create editor …) must not
+     trigger the space-to-skip shortcut                        */
+  if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable)) return;
   if (e.code === "Space") {
     if (["intro", "result", "score", "active"].includes(G.state)) {
       e.preventDefault();
