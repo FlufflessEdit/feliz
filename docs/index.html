@@ -2331,6 +2331,742 @@ body.ingame #chrome {
   z-index: 30;
   animation: pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
+/* ===== multiplayer mode menu ===== */
+.bigstart.iconic {
+  padding: 16px 24px;
+}
+.mmbtnwrap {
+  position: relative;
+}
+.modemenu {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  width: 264px;
+  background: var(--panel2);
+  border-radius: 14px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+  z-index: 60;
+}
+.modemenu.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.modemenu::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--panel2);
+}
+.modeitem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-align: left;
+  transition: background 0.15s;
+}
+.modeitem:hover {
+  background: var(--paper);
+}
+.modeitem .ic {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--ink2);
+}
+.modeitem b {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.modeitem small {
+  display: block;
+  color: var(--ink2);
+  font-size: 0.76rem;
+  margin-top: 1px;
+}
+
+/* ===== waage setup dialog ===== */
+.woverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  background: rgba(27, 27, 27, 0.72);
+}
+.wcard {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 24px 26px;
+  width: min(430px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+.wcard h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.whint {
+  color: var(--ink2);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.wteam {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel2);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.wdot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex: none;
+}
+.wdot.dA {
+  background: var(--c1);
+}
+.wdot.dB {
+  background: var(--c2);
+}
+.wteaminfo {
+  flex: 1;
+}
+.wteaminfo b {
+  display: block;
+  font-weight: 700;
+}
+.wteaminfo small {
+  color: var(--ink2);
+}
+.wteam input {
+  width: 86px;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--mono);
+  font-weight: 700;
+  outline: none;
+  text-align: center;
+}
+.wteam input:focus {
+  border-color: var(--acc);
+}
+.wbtns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ===== waage game screen ===== */
+.waagescr {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10vh 4vw 5vh;
+  min-height: 0;
+}
+.waagehead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3vw;
+  flex: none;
+  margin-bottom: 1vh;
+  flex-wrap: wrap;
+}
+.wtlabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.wtlabel b {
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wtlabel .fill {
+  font-family: var(--mono);
+  color: var(--ink2);
+  font-size: 0.9rem;
+}
+.wvs {
+  font-family: var(--mono);
+  font-weight: 800;
+  color: var(--ink2);
+  font-size: 1.2rem;
+}
+.wintitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+.wchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  flex: none;
+  margin-top: 2vh;
+}
+.wchip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  animation: pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) backwards;
+}
+.wchip .pav {
+  width: 30px;
+  height: 30px;
+}
+.wchip .pav svg {
+  width: 22px;
+  height: 22px;
+}
+.waagescr .pill {
+  flex: none;
+  margin-top: 2.5vh;
+}
+
+/* the scale itself – standing design: beam at the bottom, glasses on the plates */
+.wroot {
+  position: relative;
+  width: 640px;
+  margin: auto;
+  flex: none; /* the flex column must never squeeze the scale */
+}
+.wbeam {
+  position: absolute;
+  left: 50%;
+  width: 320px;
+  height: 6px;
+  margin-left: -160px;
+  border-radius: 3px;
+  background: var(--paper);
+  transform-origin: 50% 50%;
+  transform: rotate(var(--tilt, 0deg));
+  z-index: 2;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+/* pan assembly: pivots at the beam end, stays level while the beam tilts */
+.whang {
+  position: absolute;
+  bottom: 6px; /* the plate rests directly on the beam's top surface */
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 100%; /* pivot = contact point on the beam */
+  transform: rotate(calc(var(--tilt, 0deg) * -1));
+  z-index: 3;
+}
+.whang.hL {
+  left: -55px;
+}
+.whang.hR {
+  right: -55px;
+}
+.whang::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  margin-left: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ch);
+  z-index: 4;
+}
+.wpan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wplate {
+  width: 104px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+}
+.wtglass {
+  position: relative;
+  width: 66px;
+  border: 3px solid var(--ch);
+  border-top: none; /* open at the top – pour in from above */
+  border-radius: 0 0 16px 16px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.wlayers {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.wlayer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.22);
+  transition:
+    height 0.5s cubic-bezier(0.3, 1, 0.3, 1),
+    bottom 0.5s cubic-bezier(0.3, 1, 0.3, 1);
+}
+/* start fill (head start liquid at the bottom of the glass) */
+.wstart {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 3px 3px 0 0;
+  opacity: 0.55;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  transition: height 0.5s cubic-bezier(0.3, 1, 0.3, 1);
+}
+.wstart.t0 {
+  background: var(--c1);
+}
+.wstart.t1 {
+  background: var(--c2);
+}
+/* liquid surface – waves + gentle idle bobbing */
+.wsurf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12px;
+  overflow: hidden;
+  pointer-events: none;
+  transition: bottom 0.5s cubic-bezier(0.3, 1, 0.3, 1);
+  transform-origin: 50% 100%;
+  z-index: 3;
+  animation: wsurfIdle 3.1s ease-in-out infinite;
+}
+@keyframes wsurfIdle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1.7px);
+  }
+}
+.wsurf svg {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 160px;
+  height: 12px;
+  animation: wwave 2.6s linear infinite;
+}
+@keyframes wwave {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-80px);
+  }
+}
+.wsurf.splash {
+  animation: wbob 0.75s ease;
+}
+@keyframes wbob {
+  25% {
+    transform: scaleY(2.3);
+  }
+  55% {
+    transform: scaleY(0.7);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+/* player name tags beside the glasses */
+.wtag {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel2);
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: bottom 0.5s cubic-bezier(0.3, 1, 0.3, 1);
+  transform: translateY(50%);
+  z-index: 4;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.wtag.tagL {
+  right: calc(100% + 12px);
+}
+.wtag.tagR {
+  left: calc(100% + 12px);
+}
+.wtag .tdot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+.wpan.over .wtglass {
+  animation: wshake 0.6s ease;
+}
+.wpan.over .wlayer {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.22),
+    0 0 14px rgba(255, 255, 255, 0.25);
+}
+@keyframes wshake {
+  25% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+.wpillar {
+  position: absolute;
+  bottom: 23px;
+  left: 50%;
+  width: 14px;
+  margin-left: -7px;
+  background: var(--paper);
+  border-radius: 5px;
+}
+.wpivot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 15px solid var(--ch);
+  z-index: 3;
+}
+.wbase {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 13px;
+  border-radius: 8px;
+  background: var(--paper);
+}
+.wdrop {
+  position: absolute;
+  width: 12px;
+  height: 16px;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  z-index: 6;
+  transition: transform 0.42s cubic-bezier(0.5, 0, 1, 1);
+}
+.wspl {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  z-index: 6;
+  transition:
+    transform 0.55s ease-out,
+    opacity 0.55s ease-out;
+}
+.whintline {
+  flex: none;
+  color: var(--ink2);
+  font-size: 0.82rem;
+  text-align: center;
+  margin-top: 1vh;
+}
+
+@media (max-width: 700px) {
+  .wroot {
+    transform: scale(0.62);
+    transform-origin: top center;
+    margin: 0;
+  }
+}
+
+/* start fill (head start liquid at the bottom of the glass) */
+.wstart {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 3px 3px 0 0;
+  opacity: 0.55;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  transition: height 0.5s cubic-bezier(0.3, 1, 0.3, 1);
+}
+.wstart.t0 {
+  background: var(--c1);
+}
+.wstart.t1 {
+  background: var(--c2);
+}
+
+.waagescr.win {
+  padding: 4vh 4vw 3vh;
+}
+.waagescr.win .wchips {
+  margin-top: 1vh;
+}
+.waagescr.win .pill {
+  margin-top: 1.5vh;
+}
+.qdesc {
+  color: var(--ink2);
+  font-size: clamp(0.95rem, 1.3vw, 1.2rem);
+  line-height: 1.45;
+  white-space: pre-line;
+  margin-top: 12px;
+  max-height: 42vh;
+  overflow-y: auto;
+}
+
+/* client: info slides */
+.cinfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+.cinfobox {
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: center;
+  padding: 18px;
+}
+.cinfobox .cid {
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+.cinfobox .cinote {
+  color: var(--ink2);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+/* ===== kahoot import screen ===== */
+.iwrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 76px 24px 24px;
+  overflow-y: auto;
+}
+.ihead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.ihead h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+.iguide {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.iguide > b {
+  font-weight: 800;
+}
+.istep {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+.istep .n {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--panel2);
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+.ibox {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.iboxhead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.iboxhead b {
+  font-weight: 700;
+}
+.iboxhead small {
+  color: var(--ink2);
+}
+.ilink {
+  display: flex;
+  gap: 10px;
+}
+.ilink input {
+  flex: 1;
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-family: var(--mono);
+  outline: none;
+}
+.ilink input:focus {
+  border-color: var(--acc);
+}
+.ibox textarea {
+  width: 100%;
+  min-height: 150px;
+  background: var(--paper);
+  border: 1px solid var(--ch);
+  border-radius: 10px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  padding: 12px;
+  outline: none;
+  resize: vertical;
+}
+.ibox textarea:focus {
+  border-color: var(--acc);
+}
+.idone {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 44px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  animation: pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.idone .ic {
+  width: 56px;
+  height: 56px;
+  color: var(--good);
+}
+.idone .idt {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.idone .idd {
+  color: var(--ink2);
+  max-width: 480px;
+  line-height: 1.45;
+}
+.idone .ids {
+  color: var(--ink2);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  animation: pl 1.4s infinite;
+}
+/* ===== dark, subtle scrollbars ===== */
+html {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--ch) transparent;
+}
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ch);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--acc2);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
 
 </style>
 <!-- END css/style.css -->
@@ -2532,6 +3268,18 @@ body.ingame #chrome {
         <circle cx="12" cy="8" r="4" />
         <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" />
       </symbol>
+      <symbol id="i-users" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="8" r="3.5" />
+        <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+        <circle cx="17" cy="9" r="2.8" />
+        <path d="M14.5 20a6.5 6.5 0 0 1 7-6.4" />
+      </symbol>
+      <symbol id="i-scale" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4v15.5M8.5 19.5h7" />
+        <path d="M4 6.5h16" />
+        <path d="M4 6.5l-2.6 6h5.2zM20 6.5l-2.6 6h5.2z" />
+        <circle cx="12" cy="6.5" r="1.4" fill="currentColor" stroke="none" />
+      </symbol>
     </svg>
 
     <!-- ====== Host UI ====== -->
@@ -2557,24 +3305,9 @@ body.ingame #chrome {
             <button class="ghost" id="btnCreate">
               <svg class="ic"><use href="#i-pencil" /></svg>Create quiz
             </button>
-            <div class="flipwrap" id="flipWrap">
-              <div class="flipcard" id="flipCard">
-                <div class="flipface flipfront">
-                  <button class="ghost" id="btnImportKahoot">
-                    <svg class="ic"><use href="#i-download" /></svg>Import from Kahoot
-                  </button>
-                </div>
-                <div class="flipface flipback">
-                  <input id="kahootInput" placeholder="Kahoot link or quiz JSON" spellcheck="false" autocomplete="off" />
-                  <button class="kbtn" id="btnKahootGo" title="Fetch and convert">
-                    <svg class="ic"><use href="#i-play" /></svg>
-                  </button>
-                  <button class="kbtn" id="btnKahootX" title="Back">
-                    <svg class="ic"><use href="#i-x" /></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <button class="ghost" id="btnImportKahoot">
+              <svg class="ic"><use href="#i-download" /></svg>Import from Kahoot
+            </button>
           </div>
         </div>
       </section>
@@ -2628,6 +3361,47 @@ body.ingame #chrome {
         </div>
       </section>
 
+      <section id="scr-import" class="screen">
+        <div class="iwrap">
+          <header class="ihead">
+            <button class="ghost" id="btnImportBack">
+              <svg class="ic"><use href="#i-x" /></svg>Back
+            </button>
+            <h2>Import from Kahoot</h2>
+          </header>
+          <div id="importBody">
+            <div class="iguide">
+              <b>How it works</b>
+              <div class="istep">
+                <span class="n">1</span><span>Open the quiz on kahoot.com – or any public quiz's details page – and copy its link.</span>
+              </div>
+              <div class="istep">
+                <span class="n">2</span
+                ><span>Paste the link into the first box – the fetch starts immediately. Kahoot often blocks automatic downloads.</span>
+              </div>
+              <div class="istep">
+                <span class="n">3</span
+                ><span
+                  >If the fetch is blocked, the quiz JSON opens in a new tab. Copy <b>everything</b> (Ctrl+A, Ctrl+C) and paste it into the JSON box –
+                  the conversion and the CSV download start immediately, no further confirmation needed.</span
+                >
+              </div>
+            </div>
+            <div class="ibox">
+              <div class="iboxhead"><b>Quiz link</b><small>paste it – the fetch starts on its own</small></div>
+              <div class="ilink">
+                <input id="kahootLink" type="text" placeholder="https://create.kahoot.it/details/…" spellcheck="false" autocomplete="off" />
+              </div>
+            </div>
+            <div class="ibox">
+              <div class="iboxhead"><b>Quiz JSON</b><small>paste it here – the conversion starts on its own</small></div>
+              <textarea id="kahootJson" placeholder='{"questions": [ … ]}' spellcheck="false"></textarea>
+            </div>
+          </div>
+          <div id="importDone" hidden></div>
+        </div>
+      </section>
+
       <section id="scr-lobby" class="screen">
         <div class="lobby">
           <aside class="joincol">
@@ -2642,11 +3416,23 @@ body.ingame #chrome {
             </div>
             <div class="pgrid" id="playerGrid"></div>
             <div class="startrow">
-              <button class="bigstart" id="btnStart">
-                <svg class="ic"><use href="#i-play" /></svg>Start quiz
-              </button>
-              <button class="bigstart solo" id="btnSolo">
-                <svg class="ic"><use href="#i-user" /></svg>Solo
+              <div class="mmbtnwrap">
+                <div class="modemenu" id="modeMenu">
+                  <button class="modeitem" id="modeClassic">
+                    <svg class="ic"><use href="#i-play" /></svg>
+                    <span><b>Classic</b><small>Everyone plays on their own device</small></span>
+                  </button>
+                  <button class="modeitem" id="modeWaage">
+                    <svg class="ic"><use href="#i-scale" /></svg>
+                    <span><b>Balance</b><small>Two teams · fill the glasses</small></span>
+                  </button>
+                </div>
+                <button class="bigstart iconic" id="btnStart" title="Multiplayer">
+                  <svg class="ic"><use href="#i-users" /></svg>
+                </button>
+              </div>
+              <button class="bigstart iconic solo" id="btnSolo" title="Solo">
+                <svg class="ic"><use href="#i-user" /></svg>
               </button>
               <label class="chk"
                 ><input type="checkbox" id="chkShuffle" /><svg class="ic"><use href="#i-shuffle" /></svg>Shuffle questions</label
@@ -2758,6 +3544,35 @@ body.ingame #chrome {
         <button class="pill" id="endBtn">
           <svg class="ic"><use href="#i-refresh" /></svg>Join another room
         </button>
+      </div>
+    </div>
+
+    <!-- ====== Waage setup dialog ====== -->
+    <div id="waageSetup" class="woverlay" hidden>
+      <div class="wcard">
+        <h3>
+          <svg class="ic"><use href="#i-scale" /></svg>Balance · start fill
+        </h3>
+        <div class="whint">
+          Both glasses are the same size and hold <b id="wCapInfo"></b> units – the first glass to overflow wins. Every correct answer pours one unit
+          into the answering player's layer. Use the start fill to give a smaller team a head start.
+        </div>
+        <div class="wteam">
+          <span class="wdot dA"></span>
+          <div class="wteaminfo"><b>Team Red</b><small id="wInfoA"></small></div>
+          <input type="number" id="wStartA" min="0" max="499" />
+        </div>
+        <div class="wteam">
+          <span class="wdot dB"></span>
+          <div class="wteaminfo"><b>Team Blue</b><small id="wInfoB"></small></div>
+          <input type="number" id="wStartB" min="0" max="499" />
+        </div>
+        <div class="wbtns">
+          <button class="ghost" id="wCancel">Cancel</button>
+          <button class="pill" id="wStart">
+            <svg class="ic"><use href="#i-play" /></svg>Start
+          </button>
+        </div>
       </div>
     </div>
 
@@ -3317,12 +4132,13 @@ const TEMPLATE = [
   ["# ─────────────────────────────────────────────────────────────────────", "", "", "", "", "", "", ""],
   ["# HOW TO USE", "", "", "", "", "", "", ""],
   ["# One row = one question. Only 'Question' and 'Correct Answer' are required.", "", "", "", "", "", "", ""],
-  ["# 'Time in seconds' is optional – default 20, range 5–180.", "", "", "", "", "", "", ""],
+  ["# 'Time in seconds' is optional – default 20 (5–180), info slides 300 (3–600).", "", "", "", "", "", "", ""],
   ["# 'Image / Video (optional)' takes a URL: https://…/picture.png, a YouTube link", "", "", "", "", "", "", ""],
   ["# (youtu.be/…) or an audio file (.mp3). Leave empty for no media.", "", "", "", "", "", "", ""],
   ["# 'Type' (last column): empty = multiple choice · 'sort' = ordering task (the four", "", "", "", "", "", "", ""],
   ["# answer columns then hold the items in the TARGET order) · 'input' = type-in", "", "", "", "", "", "", ""],
-  ["# question (Wrong 1–3 count as further accepted spellings).", "", "", "", "", "", "", ""],
+  ["# question (Wrong 1–3 count as further accepted spellings) · 'info' = slide", "", "", "", "", "", "", ""],
+  ["# without answers (Question = title + blank line + description).", "", "", "", "", "", "", ""],
   ["# Rows starting with '#' are comments and are ignored. German headers work too", "", "", "", "", "", "", ""],
   ["# (Frage / Richtige Antwort / Falsch 1 / Zeit / Bild / Typ …).", "", "", "", "", "", "", ""],
   ["# ─────────────────────────────────────────────────────────────────────", "", "", "", "", "", "", ""],
@@ -3333,50 +4149,81 @@ const TEMPLATE = [
   ["How many continents are there?", "7", "seven", "Seven", "sieben", 15, "", "input"],
 ];
 
-/* =============== Kahoot import (flip card + JSON drop) =============== */
-const flipCard = $("#flipCard"),
-  kahootInput = $("#kahootInput"),
-  kahootGo = $("#btnKahootGo");
+/* =============== Kahoot import (own screen) =============== */
+let importToken = 0;
+let importBusy = false; /* a fetch is running */
+let importWin = null; /* the tab that was opened with the quiz JSON */
 
-$("#btnImportKahoot").addEventListener("click", () => {
-  flipCard.classList.add("flipped");
-  setTimeout(() => kahootInput.focus(), 380);
+function openImport() {
+  importToken++; /* cancels a pending auto-return */
+  $("#kahootLink").value = "";
+  $("#kahootJson").value = "";
+  $("#importBody").hidden = false;
+  const done = $("#importDone");
+  done.hidden = true;
+  done.innerHTML = "";
+  show("scr-import");
+  setTimeout(() => $("#kahootLink").focus(), 120);
+}
+function closeImportWin() {
+  if (importWin) {
+    try {
+      importWin.close(); /* allowed for tabs opened via window.open() */
+    } catch (e) {}
+    importWin = null;
+  }
+}
+$("#btnImportKahoot").addEventListener("click", openImport);
+$("#btnImportBack").addEventListener("click", () => {
+  importToken++;
+  show("scr-upload");
 });
-$("#btnKahootX").addEventListener("click", () => {
-  flipCard.classList.remove("flipped");
-  kahootInput.value = "";
-});
-kahootInput.addEventListener("keydown", (e) => {
+$("#kahootLink").addEventListener("keydown", (e) => {
   if (e.key === "Enter") startKahootImport();
 });
-kahootGo.addEventListener("click", startKahootImport);
-kahootInput.addEventListener("paste", () => {
+/* a pasted link fetches immediately – no button press needed */
+$("#kahootLink").addEventListener("paste", () => {
   setTimeout(() => {
-    const v = kahootInput.value.trim();
-    if (v.startsWith("{") || v.startsWith("[")) startKahootImport();
+    if (importBusy) return; /* fetch already running */
+    const v = $("#kahootLink").value.trim();
+    if (!v) return;
+    if (v.startsWith("{") || v.startsWith("[")) {
+      /* JSON pasted into the link box by mistake – move it over */
+      $("#kahootLink").value = "";
+      $("#kahootJson").value = v;
+    }
+    startKahootImport();
   }, 60);
+});
+/* pasted JSON converts immediately – no confirmation needed */
+$("#kahootJson").addEventListener("paste", () => {
+  setTimeout(() => {
+    const v = $("#kahootJson").value.trim();
+    if (v.startsWith("{") || v.startsWith("[")) startKahootImport();
+  }, 80);
 });
 
 function startKahootImport() {
-  const v = kahootInput.value.trim();
-  if (!v) {
-    toast("Paste a Kahoot link or the quiz JSON first.", "err");
-    return;
-  }
-  if (v[0] === "{" || v[0] === "[") {
+  const json = $("#kahootJson").value.trim();
+  const link = $("#kahootLink").value.trim();
+  if (json && (json[0] === "{" || json[0] === "[")) {
     let data = null;
     try {
-      data = JSON.parse(v);
+      data = JSON.parse(json);
     } catch (e) {
-      toast("That text is not valid JSON.", "err");
+      toast("That text is not valid JSON – paste the complete quiz JSON.", "err");
       return;
     }
     loadKahootQuiz(data);
     return;
   }
-  const uuid = extractKahootUuid(v);
+  if (!link) {
+    toast("Paste a Kahoot quiz link or the quiz JSON first.", "err");
+    return;
+  }
+  const uuid = extractKahootUuid(link);
   if (!uuid) {
-    toast("No Kahoot quiz ID found in that input.", "err");
+    toast("No Kahoot quiz ID found in that link.", "err");
     return;
   }
   fetchKahootQuiz(uuid);
@@ -3388,35 +4235,38 @@ function extractKahootUuid(s) {
 }
 
 async function fetchKahootQuiz(uuid) {
-  const url = "https://create.kahoot.it/rest/kahoots/" + uuid + "?includeKahoot=true";
-  kahootGo.disabled = true;
+  if (importBusy) return;
+  importBusy = true;
   toast("Fetching the quiz from create.kahoot.it …");
+  const url = "https://create.kahoot.it/rest/kahoots/" + uuid + "?includeKahoot=true";
   try {
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     loadKahootQuiz(data);
   } catch (e) {
-    const win = window.open(url, "_blank");
-    if (win) {
+    importWin = window.open(url, "_blank"); /* remembered – closed automatically after the paste */
+    if (importWin) {
       toast(
-        "Kahoot blocked the automatic download. The quiz JSON opened in a new tab: copy everything (Ctrl+A, Ctrl+C), switch back and just paste it here.",
+        "Kahoot blocked the automatic download. The quiz JSON opened in a new tab: copy everything (Ctrl+A, Ctrl+C), come back and paste it into the JSON box – the conversion starts on its own.",
         "err",
       );
     } else {
-      kahootInput.value = url;
+      $("#kahootLink").value = url;
       toast(
-        "Kahoot blocked the download and the pop-up was blocked too. Open the URL now in the field in a new tab, copy the JSON and paste it back here.",
+        "Kahoot blocked the download and the pop-up was blocked too. Open the link in a new tab, copy the JSON and paste it into the JSON box.",
         "err",
       );
     }
     const refocus = () => {
-      kahootInput.focus();
+      try {
+        $("#kahootJson").focus();
+      } catch (e) {}
       window.removeEventListener("focus", refocus);
     };
     window.addEventListener("focus", refocus);
   } finally {
-    kahootGo.disabled = false;
+    importBusy = false;
   }
 }
 
@@ -3427,6 +4277,7 @@ const TXT_SELECTALL = " \u2013 Select all correct answers:";
 const ANSWER_TYPES = ["type_answer", "open_ended"];
 const ORDER_RE = /order|sort|rank|sequen|puzzle|jumble|reorder|drag|arrange/i;
 const POLL_RE = /poll|survey|word_?cloud|brainstorm|collect|slide|feedback|opinion|quiz_?poll|slider/i;
+const KAHOOT_INFO_RE = /content|slide/i; /* Kahoot info / intro slides */
 
 const SUPCH = {
   0: "\u2070",
@@ -3451,11 +4302,11 @@ function formatText(v) {
       .join(""),
   );
   s = s.replace(/<[^>]+>/g, "");
-  s = s
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+  /* decode all HTML entities via the browser's own parser
+     (&auml; → ä, &amp; → &, &#228; → ä, …)                    */
+  const ta = document.createElement("textarea");
+  ta.innerHTML = s;
+  s = ta.value;
   return s.trim();
 }
 
@@ -3517,6 +4368,13 @@ function jsonSeconds(q) {
   return Math.max(5, Math.min(180, Math.round(v)));
 }
 
+function jsonInfoSeconds(q) {
+  let v = Number(q && q.time);
+  if (!isFinite(v) || v <= 0) return 300; /* info slides stay until skipped */
+  if (v >= 1000) v = v / 1000;
+  return Math.max(3, Math.min(600, Math.round(v)));
+}
+
 function jsonMedia(q) {
   if (!q || typeof q !== "object") return null;
   for (const key of ["audio", "music"]) {
@@ -3545,7 +4403,32 @@ function jsonMedia(q) {
     img = String(q.imageMetadata.url || "").trim();
     if (!img && q.imageMetadata.id) img = "https://media.kahoot.it/" + String(q.imageMetadata.id);
   }
+  /* content slides keep their picture in the "media" array:
+     background images with an id, GIFs with a url            */
+  if (!img && Array.isArray(q.media)) {
+    for (const m of q.media) {
+      if (m && typeof m === "object" && m.url && /^https?:\/\//i.test(String(m.url))) {
+        img = String(m.url);
+        break;
+      }
+    }
+    if (!img) {
+      for (const m of q.media) {
+        if (m && typeof m === "object" && m.id) {
+          img = "https://media.kahoot.it/" + String(m.id);
+          break;
+        }
+      }
+    }
+  }
   return img ? { kind: "img", src: img } : null;
+}
+
+/* media object → CSV cell (URL), so media survives the round trip */
+function mediaToCell(m) {
+  if (!m || typeof m !== "object") return "";
+  if (m.kind === "yt") return "https://youtu.be/" + m.id;
+  return String(m.src || "");
 }
 
 function collectAccepted(q) {
@@ -3599,12 +4482,12 @@ function kahootToRows(data, skipOrder) {
     skipped = [];
   getQuestions(data).forEach((q, i) => {
     const no = "Q" + (i + 1);
+    const type = String((q && q.type) || "quiz").toLowerCase();
     const question = formatText(q && (q.question || q.title));
-    if (!question) {
+    if (!question && !KAHOOT_INFO_RE.test(type)) {
       skipped.push(no + ": empty question");
       return;
     }
-    const type = String((q && q.type) || "quiz").toLowerCase();
     const choices = extractChoices(q);
     const corr = choices.filter((c) => c.correct).map((c) => c.text);
     const wrong = choices.filter((c) => !c.correct).map((c) => c.text);
@@ -3616,6 +4499,18 @@ function kahootToRows(data, skipOrder) {
       if (skipOrder) return;
       const items = oi.items.slice(0, 4);
       rows.push([question, items[0], items[1] || "", items[2] || "", items[3] || "", time, media, "sort"]);
+      return;
+    }
+
+    /* info / intro slides: no answer options, shown in between */
+    if (KAHOOT_INFO_RE.test(type)) {
+      const title = formatText(q && (q.question || q.title));
+      const desc = formatText(q && q.description);
+      if (!title && !desc) {
+        skipped.push(no + ": empty info slide");
+        return;
+      }
+      rows.push([desc ? title + "\n\n" + desc : title, "", "", "", "", jsonInfoSeconds(q), media, "info"]);
       return;
     }
 
@@ -3674,24 +4569,59 @@ function loadKahootQuiz(data) {
     return;
   }
   const lines = [TEMPLATE[0].map(csvEsc).join(";")];
-  rows.forEach((r) => lines.push(r.map(csvEsc).join(";")));
+  rows.forEach((r) => {
+    const cells = r.slice();
+    cells[6] = mediaToCell(cells[6]); /* column 7 = media */
+    lines.push(cells.map(csvEsc).join(";"));
+  });
   const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   const src = data && typeof data === "object" ? (data.kahoot && typeof data.kahoot === "object" ? data.kahoot : data) : {};
   const slug = String(src.title || "")
+    .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^\p{L}\p{N}]+/gu, "-") /* keeps ä ö ü ß and every letter */
     .replace(/^-+|-+$/g, "")
     .slice(0, 40);
+  const filename = (slug || "kahoot") + "_feliz.csv";
   a.href = URL.createObjectURL(blob);
-  a.download = (slug || "kahoot") + "_feliz.csv";
+  a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   SFX.join();
-  toast("Converted " + rows.length + " questions – CSV downloaded. Drop the CSV here to start the quiz.", "ok");
+  closeImportWin(); /* close the JSON tab that was opened automatically */
+  toast("Converted " + rows.length + " questions – CSV downloaded. Drop the CSV on the start page to play.", "ok");
   if (skipped.length) console.info("[Feliz] skipped Kahoot questions:\n" + skipped.join("\n"));
-  flipCard.classList.remove("flipped");
-  kahootInput.value = "";
+  importDone(rows.length, skipped.length, filename);
+}
+
+/* success summary on the import screen, then back to the start page */
+function importDone(count, skippedCount, filename) {
+  if (!document.querySelector("#scr-import.on")) return; /* e.g. JSON file dropped on the start page */
+  const tok = ++importToken;
+  $("#importBody").hidden = true;
+  const done = $("#importDone");
+  done.hidden = false;
+  done.innerHTML = "";
+  const card = el("div", "idone");
+  card.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+  card.appendChild(el("div", "idt", "Converted " + count + " question" + (count === 1 ? "" : "s")));
+  card.appendChild(
+    el(
+      "div",
+      "idd",
+      "The CSV “" +
+        filename +
+        "” has been downloaded" +
+        (skippedCount ? " · " + skippedCount + " unsupported questions were skipped (details in the browser console)" : "") +
+        ". Drop the CSV on the start page to play it.",
+    ),
+  );
+  card.appendChild(el("div", "ids", "Back to the start page …"));
+  done.appendChild(card);
+  setTimeout(() => {
+    if (tok === importToken) show("scr-upload");
+  }, 4200);
 }
 
 async function loadKahootJsonFile(file) {
@@ -3707,9 +4637,11 @@ async function loadKahootJsonFile(file) {
 
 /* =============== spreadsheet import =============== */
 /* Type column: "" or "quiz" = multiple choice · "sort" = ordering ·
-   "input" = type answer (Wrong 1-3 = further accepted spellings)    */
+   "input" = type answer (Wrong 1-3 = further accepted spellings) ·
+   "info" = slide without answers (Question = title + blank line + desc) */
 const TYPE_SORT_RE = /sort|order|jumble|reihenfolge/i;
 const TYPE_INPUT_RE = /input|eingabe|tippen|schreiben|type/i;
+const TYPE_INFO_RE = /info|hinweis|folie|content|slide/i;
 
 /* quote a cell if it contains the delimiter, quotes or line breaks */
 function csvEsc(v) {
@@ -3928,12 +4860,31 @@ function buildQuiz(rawRows) {
     const text = cell(qI);
     const typ = typeI != null && typeI < r.length ? cell(typeI).toLowerCase() : "";
     const rawWrongs = wrongI.map(cell).filter((w) => w !== "");
+    const isInfo = TYPE_INFO_RE.test(typ);
     let t = parseFloat(cell(timeI).replace(",", "."));
-    if (!isFinite(t) || t <= 0) t = 20;
-    t = Math.min(180, Math.max(5, Math.round(t)));
+    if (!isFinite(t) || t <= 0) t = isInfo ? 300 : 20;
+    t = isInfo ? Math.min(600, Math.max(3, Math.round(t))) : Math.min(180, Math.max(5, Math.round(t)));
     const rawMedia = mediaI != null && mediaI < r.length ? r[mediaI] : null;
     const media =
       rawMedia && typeof rawMedia === "object" ? rawMedia : mediaI != null ? detectMedia(String(rawMedia == null ? "" : rawMedia).trim()) : null;
+
+    /* info slides: no answers, displayed for their time, then skipped */
+    if (isInfo) {
+      let title = text,
+        desc = "";
+      const cut = text.indexOf("\n");
+      if (cut >= 0) {
+        title = text.slice(0, cut).trim();
+        desc = text.slice(cut).trim();
+      }
+      if (!title && !desc) {
+        skipped++;
+        continue;
+      }
+      questions.push({ text: title, desc, type: "info", time: t, media, answers: [], correct: -1 });
+      continue;
+    }
+
     const isSort = TYPE_SORT_RE.test(typ);
     const isInput = TYPE_INPUT_RE.test(typ);
 
@@ -4061,6 +5012,7 @@ const G = {
   players: [],
   started: false,
   solo: false,
+  mode: "classic",
   state: "idle",
   order: [],
   qi: -1,
@@ -4184,6 +5136,7 @@ function conns() {
 function enterLobby() {
   G.started = false;
   G.solo = false;
+  G.mode = "classic";
   G.players = [];
   seq = 0;
   G.code = makeCode();
@@ -4264,6 +5217,17 @@ function handleConn(conn) {
         if (Array.isArray(m.order)) recordAnswer(p, m.order.map(Number), Number(m.ms) || 0);
         else if (typeof m.text === "string") recordAnswer(p, m.text.trim().slice(0, 64), Number(m.ms) || 0);
         else recordAnswer(p, m.c | 0, Number(m.ms) || 0);
+      } else if (m.t === "waageAnswer") {
+        const p = conn.playerRef;
+        if (!p || G.state !== "waage" || !G.quiz) return;
+        const q = G.quiz.questions[m.qi];
+        if (!q) return;
+        let ok = false;
+        if (Array.isArray(m.order)) ok = String(m.order.map(Number)) === String(q.correctOrder);
+        else if (typeof m.text === "string") ok = q.acceptN.includes(m.text.trim().slice(0, 64).toLowerCase());
+        else ok = (m.c | 0) === q.correct;
+        conn.send({ t: "waageFeedback", ok });
+        if (ok) waageAddUnit(p);
       }
     } catch (e) {}
   });
@@ -4357,95 +5321,18 @@ function startGame() {
   G.qi = -1;
   show("scr-game");
   SFX.start();
+  if (G.mode === "waage") {
+    startWaageLive();
+    return;
+  }
   conns().forEach((c) => c.send({ t: "start" }));
   nextQuestion();
-}
-
-/* =============== solo mode =============== */
-function startSolo() {
-  if (!G.quiz) return;
-  if (!G.players.some((p) => p.solo)) {
-    const nm = randomName();
-    G.players.push({
-      id: "s" + ++seq,
-      conn: null,
-      name: "You",
-      animal: nm.animal,
-      color: COLORS[0],
-      bot: false,
-      solo: true,
-      skill: 0,
-      score: 0,
-      streak: 0,
-      lastDelta: 0,
-      answered: null,
-      alive: true,
-    });
-    renderLobby();
-  }
-  G.solo = true;
-  startGame();
-}
-
-/* answers become clickable directly on the host screen */
-let soloOrder = [];
-let soloConfirm = null;
-function wireSoloAnswers(q) {
-  anscolEl.classList.add("soloable");
-  soloOrder = [];
-  soloConfirm = null;
-  if (q.type === "order") {
-    anscolEl.classList.add("orderq");
-    answerEls.forEach((b) => b.appendChild(el("span", "sopos", "")));
-    soloConfirm = el("button", "pill soloconfirm");
-    soloConfirm.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
-    soloConfirm.appendChild(el("span", "", "OK"));
-    soloConfirm.hidden = true;
-    soloConfirm.addEventListener("click", () => {
-      if (G.state !== "active" || soloOrder.length !== answerEls.length) return;
-      const me = G.players.find((p) => p.solo);
-      if (!me || me.answered) return;
-      soloConfirm.hidden = true;
-      recordAnswer(me, soloOrder.slice(), performance.now() - G.qT0);
-    });
-    stageRoot.appendChild(soloConfirm);
-    answerEls.forEach((b, i) => {
-      b.addEventListener("click", () => {
-        if (G.state !== "active") return;
-        const me = G.players.find((p) => p.solo);
-        if (!me || me.answered) return;
-        const pos = soloOrder.indexOf(i);
-        if (pos >= 0) soloOrder.splice(pos, 1);
-        else soloOrder.push(i);
-        SFX.select();
-        updateSoloOrder();
-      });
-    });
-  } else {
-    answerEls.forEach((b, i) => {
-      b.addEventListener("click", () => {
-        if (G.state !== "active") return;
-        const me = G.players.find((p) => p.solo);
-        if (!me || me.answered) return;
-        answerEls.forEach((x) => x.classList.remove("sel"));
-        b.classList.add("sel");
-        SFX.select();
-        recordAnswer(me, i, performance.now() - G.qT0);
-      });
-    });
-  }
-}
-function updateSoloOrder() {
-  answerEls.forEach((b, i) => {
-    const badge = b.querySelector(".sopos");
-    if (badge) badge.textContent = soloOrder.indexOf(i) >= 0 ? String(soloOrder.indexOf(i) + 1) : "";
-  });
-  if (soloConfirm) soloConfirm.hidden = soloOrder.length !== answerEls.length;
 }
 function qTypeName(q) {
   if (!q || !q.type) return "Question";
   if (q.type === "order") return "Sorting question";
   if (q.type === "input") return "Text question";
+  if (q.type === "info") return "Info";
   return "Question";
 }
 function nextQuestion() {
@@ -4469,6 +5356,7 @@ function renderStage(q) {
   const qcol = el("div", "qcol");
   qSlotEl = el("div", "qslot");
   qSlotEl.appendChild(el("div", "qmeta", qTypeName(q) + " · " + (G.qi + 1) + " of " + G.order.length));
+  if (q.type === "info" && q.desc) qSlotEl.appendChild(el("div", "qdesc", q.desc));
   qcol.appendChild(qSlotEl);
   timerBoxEl = el("div", "timerwrap");
   timerBoxEl.title = "Click or press space: time runs out";
@@ -4509,6 +5397,7 @@ function renderStage(q) {
       if (q.media.src) {
         au.src = q.media.src;
       } else if (q.media.iaItem) {
+        /* archive.org item link – resolve the audio file first */
         resolveArchiveAudio(q.media.iaItem).then((src) => {
           if (src) {
             au.src = src;
@@ -4530,7 +5419,13 @@ function renderStage(q) {
   const anscol = el("div", "anscol");
   const SHAPES = ["s-tri", "s-dia", "s-cir", "s-sqr"];
   answerEls = [];
-  if (q.type === "input") {
+  if (q.type === "info") {
+    anscol.style.gridTemplateRows = "1fr";
+    const card = el("div", "ans in inputcard");
+    card.innerHTML = '<svg class="ic"><use href="#i-book"/></svg><span>Info · read along</span>';
+    anscol.appendChild(card);
+    answerEls.push(card);
+  } else if (q.type === "input") {
     anscol.style.gridTemplateRows = "1fr";
     const card = el("div", "ans in inputcard");
     if (G.solo) {
@@ -4582,7 +5477,7 @@ function renderStage(q) {
   stage.appendChild(anscol);
   anscolEl = anscol;
   stageRoot.appendChild(stage);
-  if (G.solo && q.type !== "input") wireSoloAnswers(q);
+  if (G.solo && q.type !== "input" && q.type !== "info") wireSoloAnswers(q);
 }
 function playIntro() {
   G.state = "intro";
@@ -4660,7 +5555,14 @@ function transitionIn() {
   answerEls.forEach((b, i) => {
     setTimeout(() => b.classList.add("in"), 380 + (i > 1 ? 230 : 0));
   });
-  setTimeout(beginAnswering, 1350);
+  if (G.q.type === "info") {
+    /* info slide: no answers, no timer – show, then continue */
+    G.state = "info";
+    broadcastQuestion();
+    phase(Math.max(4000, (G.q.time || 300) * 1000), nextQuestion);
+  } else {
+    setTimeout(beginAnswering, 1350);
+  }
 }
 function beginAnswering() {
   G.state = "active";
@@ -4679,6 +5581,7 @@ function broadcastQuestion() {
       i: G.qi,
       n: G.order.length,
       text: q.text,
+      desc: q.type === "info" ? q.desc || "" : null,
       ans: q.answers,
       time: q.time,
       type: q.type || null,
@@ -4881,6 +5784,89 @@ function showScoreboard() {
   phase(5000, nextQuestion);
 }
 
+/* =============== solo mode =============== */
+function startSolo() {
+  if (!G.quiz) return;
+  if (!G.players.some((p) => p.solo)) {
+    const nm = randomName();
+    G.players.push({
+      id: "s" + ++seq,
+      conn: null,
+      name: "You",
+      animal: nm.animal,
+      color: COLORS[0],
+      bot: false,
+      solo: true,
+      skill: 0,
+      score: 0,
+      streak: 0,
+      lastDelta: 0,
+      answered: null,
+      alive: true,
+    });
+    renderLobby();
+  }
+  G.solo = true;
+  G.mode = "classic";
+  startGame();
+}
+
+/* answers become clickable directly on the host screen */
+let soloOrder = [];
+let soloConfirm = null;
+function wireSoloAnswers(q) {
+  anscolEl.classList.add("soloable");
+  soloOrder = [];
+  soloConfirm = null;
+  if (q.type === "order") {
+    anscolEl.classList.add("orderq");
+    answerEls.forEach((b) => b.appendChild(el("span", "sopos", "")));
+    soloConfirm = el("button", "pill soloconfirm");
+    soloConfirm.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+    soloConfirm.appendChild(el("span", "", "OK"));
+    soloConfirm.hidden = true;
+    soloConfirm.addEventListener("click", () => {
+      if (G.state !== "active" || soloOrder.length !== answerEls.length) return;
+      const me = G.players.find((p) => p.solo);
+      if (!me || me.answered) return;
+      soloConfirm.hidden = true;
+      recordAnswer(me, soloOrder.slice(), performance.now() - G.qT0);
+    });
+    stageRoot.appendChild(soloConfirm);
+    answerEls.forEach((b, i) => {
+      b.addEventListener("click", () => {
+        if (G.state !== "active") return;
+        const me = G.players.find((p) => p.solo);
+        if (!me || me.answered) return;
+        const pos = soloOrder.indexOf(i);
+        if (pos >= 0) soloOrder.splice(pos, 1);
+        else soloOrder.push(i);
+        SFX.select();
+        updateSoloOrder();
+      });
+    });
+  } else {
+    answerEls.forEach((b, i) => {
+      b.addEventListener("click", () => {
+        if (G.state !== "active") return;
+        const me = G.players.find((p) => p.solo);
+        if (!me || me.answered) return;
+        answerEls.forEach((x) => x.classList.remove("sel"));
+        b.classList.add("sel");
+        SFX.select();
+        recordAnswer(me, i, performance.now() - G.qT0);
+      });
+    });
+  }
+}
+function updateSoloOrder() {
+  answerEls.forEach((b, i) => {
+    const badge = b.querySelector(".sopos");
+    if (badge) badge.textContent = soloOrder.indexOf(i) >= 0 ? String(soloOrder.indexOf(i) + 1) : "";
+  });
+  if (soloConfirm) soloConfirm.hidden = soloOrder.length !== answerEls.length;
+}
+
 /* =============== podium =============== */
 let podInt = null;
 function showPodium() {
@@ -4971,6 +5957,441 @@ $("#podBtn").addEventListener("click", () => {
 
 </script>
 <!-- END js/host.js -->
+
+    
+<!-- BEGIN js/waage.js -->
+<script  defer>
+"use strict";
+
+/* =============== balance mode ("Waage") =============== */
+/* Self-paced team mode: the questions run on the players'
+   devices, the host screen shows only the balance scale –
+   a standing scale: the beam carries the plates from below,
+   both glasses stand on the plates and stay level while the
+   beam tilts (the fuller, heavier side sinks). Glasses are
+   open at the top; every correct answer drops one unit from
+   above onto the liquid surface. The first glass to overflow
+   wins.                                                 */
+
+const WAAGE = { teams: [[], []], caps: [10, 10], starts: [0, 0], unit: 10, rim: 100 };
+const WPHYS = { tilt: 0, vel: 0, target: 0, raf: 0, root: null, lastT: 0 };
+const W_BASE = 7; /* px – every player exists as a base layer */
+
+/* ---- setup dialog ---- */
+function openWaageSetup() {
+  if (G.players.length < 2) {
+    toast("Balance needs at least 2 players – add demo players or wait for joins.", "err");
+    return;
+  }
+  WAAGE.teams = [[], []];
+  WAAGE.starts = [0, 0];
+  G.players.forEach((p, i) => {
+    p.team = i % 2;
+    p.wUnits = 0;
+    p.wVis = 0;
+    p.wColor = "hsl(" + Math.round((i * 137.5) % 360) + ", 68%, 60%)";
+    p.color = p.wColor;
+    WAAGE.teams[p.team].push(p);
+  });
+  const nA = WAAGE.teams[0].length,
+    nB = WAAGE.teams[1].length;
+  const C = 10 * Math.max(nA, nB); /* both glasses hold the same amount */
+  WAAGE.caps = [C, C];
+  const diff = Math.abs(nA - nB);
+  const sA = nA < nB ? diff * 10 : 0; /* the smaller team gets the head start */
+  const sB = nB < nA ? diff * 10 : 0;
+  $("#wCapInfo").textContent = String(C);
+  $("#wInfoA").textContent = nA + (nA === 1 ? " player" : " players") + " · suggested start: " + sA;
+  $("#wInfoB").textContent = nB + (nB === 1 ? " player" : " players") + " · suggested start: " + sB;
+  $("#wStartA").value = sA;
+  $("#wStartB").value = sB;
+  $("#waageSetup").hidden = false;
+  setTimeout(() => $("#wStartA").select(), 80);
+}
+function closeWaageSetup() {
+  $("#waageSetup").hidden = true;
+}
+$("#wCancel").addEventListener("click", closeWaageSetup);
+$("#waageSetup").addEventListener("click", (e) => {
+  if (e.target === $("#waageSetup")) closeWaageSetup();
+});
+[$("#wStartA"), $("#wStartB")].forEach((inp) =>
+  inp.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") $("#wStart").click();
+    if (e.key === "Escape") closeWaageSetup();
+  }),
+);
+$("#wStart").addEventListener("click", () => {
+  const C = WAAGE.caps[0];
+  const cl = (v) => {
+    const n = parseInt(v, 10);
+    return isFinite(n) ? Math.min(C - 1, Math.max(0, n)) : 0;
+  };
+  WAAGE.starts = [cl($("#wStartA").value), cl($("#wStartB").value)];
+  closeWaageSetup();
+  G.mode = "waage";
+  startGame();
+});
+
+/* ---- helpers ---- */
+/* real units (logic / win decision) – counted immediately */
+function teamUnits(t) {
+  return WAAGE.starts[t] + WAAGE.teams[t].reduce((s, p) => s + (p.wUnits || 0), 0);
+}
+function teamFillPx(t) {
+  return teamUnits(t) * WAAGE.unit + WAAGE.teams[t].length * W_BASE;
+}
+/* visual units – a layer only grows once its own drop landed */
+function visUnits(p) {
+  const u = p.wUnits || 0;
+  return p.wVis == null ? u : Math.min(p.wVis, u);
+}
+function teamFillPxVis(t) {
+  return (WAAGE.starts[t] + WAAGE.teams[t].reduce((s, p) => s + visUnits(p), 0)) * WAAGE.unit + WAAGE.teams[t].length * W_BASE;
+}
+function waageOver() {
+  return teamFillPx(0) >= WAAGE.rim - 1 || teamFillPx(1) >= WAAGE.rim - 1;
+}
+function waageWinner() {
+  const oa = teamFillPx(0) - WAAGE.rim;
+  const ob = teamFillPx(1) - WAAGE.rim;
+  if (oa >= 0 && ob >= 0) return oa >= ob ? 0 : 1;
+  return oa >= 0 ? 0 : 1;
+}
+/* positive tilt = clockwise = right side (team 1) hangs lower:
+   the fuller / heavier side sinks                             */
+function computeTiltTarget() {
+  const d = (teamFillPxVis(1) - teamFillPxVis(0)) / Math.max(1, WAAGE.rim);
+  return Math.max(-15, Math.min(15, d * 30));
+}
+
+/* ---- game start: questions go to the devices ---- */
+function startWaageLive() {
+  G.state = "waage";
+  const list = G.quiz.questions.map((q, i) => ({
+    ri: i,
+    text: q.text,
+    desc: q.type === "info" ? q.desc || "" : null,
+    time: q.type === "info" ? q.time || 300 : 0,
+    ans: q.answers,
+    type: q.type || null,
+    media: q.media && q.media.kind === "img" ? { src: q.media.src } : null,
+  }));
+  conns().forEach((c) => c.send({ t: "waageStart", questions: list }));
+  showWaageLive();
+  scheduleWaageBots();
+  if (waageOver()) setTimeout(waageVictory, 1600);
+}
+
+function showWaageLive() {
+  introOverlay.classList.add("off"); /* hide the intro overlay – it covers the stage */
+  clearPhase();
+  stageRoot.innerHTML = "";
+  const scr = el("div", "waagescr");
+  const head = el("div", "waagehead");
+  const mkTeam = (t, name) => {
+    const box = el("div", "wtlabel");
+    const b = el("b");
+    b.appendChild(el("span", "wdot " + (t === 0 ? "dA" : "dB")));
+    b.appendChild(el("span", "", name));
+    box.appendChild(b);
+    const fill = el("div", "fill");
+    fill.dataset.wfill = t;
+    box.appendChild(fill);
+    return box;
+  };
+  head.appendChild(mkTeam(0, "Team Red"));
+  head.appendChild(el("div", "wvs", "vs"));
+  head.appendChild(mkTeam(1, "Team Blue"));
+  const scale = buildScale();
+  const hint = el("div", "whintline", "Players answer on their own devices · questions repeat · every correct answer pours one unit");
+  scr.appendChild(head);
+  scr.appendChild(scale);
+  scr.appendChild(hint);
+  stageRoot.appendChild(scr);
+  updateScales();
+  startPhysics(scale);
+}
+
+/* ---- bots answer at their own pace ---- */
+function scheduleWaageBots() {
+  G.players
+    .filter((p) => p.bot && p.alive)
+    .forEach((p) => {
+      const loop = () => {
+        if (G.state !== "waage" || !p.alive) return;
+        if (Math.random() < p.skill) waageAddUnit(p);
+        G.botTOs.push(setTimeout(loop, 2800 + Math.random() * 4200));
+      };
+      G.botTOs.push(setTimeout(loop, 1500 + Math.random() * 2000));
+    });
+}
+
+/* ---- a correct answer arrived: pour one unit ---- */
+function waageAddUnit(p) {
+  p.wUnits = (p.wUnits || 0) + 1; /* the logic counts immediately … */
+  const root = WPHYS.root;
+  if (!root) return;
+  spawnDrop(p, root, () => {
+    if (G.state !== "waage") return; /* round already decided – the unit is in the data */
+    p.wVis = Math.min((p.wVis || 0) + 1, p.wUnits); /* … the glass grows only now */
+    updateScales();
+    splash(root, p);
+    WPHYS.target = computeTiltTarget();
+    WPHYS.vel += (p.team === 0 ? -1 : 1) * 11;
+    if (waageOver()) setTimeout(waageVictory, 1100);
+  });
+}
+
+/* ---- the scale (standing design) ---- */
+function buildScale() {
+  const C = Math.max(WAAGE.caps[0], WAAGE.caps[1], 1);
+  const maxN = Math.max(WAAGE.teams[0].length, WAAGE.teams[1].length, 1);
+  const avail = Math.max(120, 340 - maxN * W_BASE);
+  const unit = Math.max(5, Math.min(15, Math.floor(avail / C)));
+  const rim = C * unit + maxN * W_BASE; /* inner height – identical for both glasses */
+  WAAGE.unit = unit;
+  WAAGE.rim = rim;
+  const glassH = rim + 8;
+
+  /* standing scale: the beam CARRIES the plates from below – the
+     plate rests directly on the beam's top surface and the glass
+     stands on the plate, rising upwards                     */
+  const headPad = 56; /* room above the glasses for the falling drops */
+  const pivotY = glassH + headPad; /* beam centre, measured from the root top */
+  const rootH = pivotY + 75;
+
+  const root = el("div", "wroot");
+  root.style.height = rootH + "px";
+  root.dataset.unit = unit;
+
+  const beam = el("div", "wbeam");
+  beam.style.top = pivotY - 3 + "px";
+  [0, 1].forEach((t) => {
+    const hang = el("div", "whang " + (t === 0 ? "hL" : "hR"));
+    const pan = el("div", "wpan t" + t);
+    const glass = el("div", "wtglass t" + t);
+    glass.style.height = glassH + "px"; /* same size for both teams */
+    glass.appendChild(el("div", "wstart t" + t)); /* head start liquid */
+    const layers = el("div", "wlayers");
+    WAAGE.teams[t].forEach((p) => {
+      const l = el("div", "wlayer");
+      l.style.background = p.wColor;
+      layers.appendChild(l);
+      const tag = el("div", "wtag " + (t === 0 ? "tagL" : "tagR"));
+      const dot = el("span", "tdot");
+      dot.style.background = p.wColor;
+      tag.appendChild(dot);
+      tag.appendChild(el("span", "", p.name));
+      glass.appendChild(tag);
+    });
+    const surf = el("div", "wsurf");
+    surf.innerHTML =
+      '<svg viewBox="0 0 80 12" preserveAspectRatio="none"><path d="M0 12L0 6Q5 2 10 6T20 6T30 6T40 6T50 6T60 6T70 6T80 6L80 12Z"/></svg>';
+    glass.appendChild(surf);
+    glass.appendChild(layers);
+    pan.appendChild(glass);
+    pan.appendChild(el("div", "wplate")); /* plate under the glass, resting ON the beam */
+    hang.appendChild(pan);
+    beam.appendChild(hang);
+  });
+  root.appendChild(beam);
+  const pillar = el("div", "wpillar");
+  pillar.style.height = Math.max(20, rootH - 23 - (pivotY + 18)) + "px";
+  root.appendChild(pillar);
+  const pivot = el("div", "wpivot");
+  pivot.style.top = pivotY + 3 + "px";
+  root.appendChild(pivot);
+  root.appendChild(el("div", "wbase"));
+  updateScale(root);
+  return root;
+}
+
+function updateScale(root) {
+  const unit = parseFloat(root.dataset.unit) || WAAGE.unit || 10;
+  [0, 1].forEach((t) => {
+    const glass = root.querySelector(".wtglass.t" + t);
+    if (!glass) return;
+    const startEl = glass.querySelector(".wstart");
+    const layers = glass.querySelectorAll(".wlayers .wlayer");
+    const tags = glass.querySelectorAll(".wtag");
+    let bottom = 0;
+    if (startEl) {
+      const sh = WAAGE.starts[t] * unit;
+      startEl.style.height = sh + "px";
+      bottom = sh;
+    }
+    let topColor = null;
+    WAAGE.teams[t].forEach((p, i) => {
+      const h = W_BASE + visUnits(p) * unit;
+      if (layers[i]) {
+        layers[i].style.height = h + "px";
+        layers[i].style.bottom = bottom + "px";
+      }
+      if (tags[i]) tags[i].style.bottom = bottom + h / 2 + "px";
+      bottom += h;
+      topColor = p.wColor;
+    });
+    const surf = glass.querySelector(".wsurf");
+    if (surf) {
+      surf.style.bottom = Math.max(0, bottom - 7) + "px";
+      surf.querySelector("path").style.fill = topColor || "#565656";
+    }
+    const pan = root.querySelector(".wpan.t" + t);
+    if (pan) pan.classList.toggle("over", teamFillPxVis(t) >= WAAGE.rim - 1);
+  });
+}
+
+function updateScales() {
+  document.querySelectorAll(".wroot").forEach((r) => updateScale(r));
+  document.querySelectorAll("[data-wfill]").forEach((n) => {
+    const t = +n.dataset.wfill;
+    n.textContent = Math.round(teamFillPxVis(t) / WAAGE.unit) + " / " + Math.round(WAAGE.rim / WAAGE.unit);
+  });
+}
+
+/* a sip falls from above down to the liquid surface */
+function spawnDrop(p, root, onLand) {
+  const glass = root.querySelector(".wtglass.t" + p.team);
+  const surf = glass && glass.querySelector(".wsurf");
+  if (!glass || !surf) {
+    if (onLand) onLand();
+    return;
+  }
+  const gr = glass.getBoundingClientRect();
+  const sr = surf.getBoundingClientRect();
+  const rr = root.getBoundingClientRect();
+  const endY = sr.top - rr.top - 12; /* drop bottom reaches the surface */
+  const startY = Math.min(sr.top, gr.top) - rr.top - 58; /* start above the rim */
+  const dist = Math.max(20, endY - startY);
+  const dur = 180 + Math.round(dist * 2.2); /* fall time by distance */
+  const drop = el("div", "wdrop");
+  drop.style.background = p.wColor;
+  drop.style.left = gr.left - rr.left + gr.width / 2 - 6 + "px";
+  drop.style.top = startY + "px";
+  drop.style.transition = "transform " + dur + "ms cubic-bezier(.45,.05,.8,.6)";
+  root.appendChild(drop);
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      drop.style.transform = "translateY(" + (endY - startY) + "px)";
+    }),
+  );
+  setTimeout(() => {
+    drop.remove();
+    if (onLand) onLand();
+  }, dur + 70);
+}
+
+/* waves + splash droplets when the drop hits the surface */
+function splash(root, p) {
+  const glass = root.querySelector(".wtglass.t" + p.team);
+  const surf = glass && glass.querySelector(".wsurf");
+  if (!glass || !surf) return;
+  surf.classList.remove("splash");
+  void surf.offsetWidth;
+  surf.classList.add("splash");
+  setTimeout(() => surf.classList.remove("splash"), 800);
+  const sr = surf.getBoundingClientRect();
+  const rr = root.getBoundingClientRect();
+  for (let i = 0; i < 3; i++) {
+    const d = el("div", "wspl");
+    d.style.background = p.wColor;
+    d.style.left = sr.left - rr.left + sr.width / 2 - 4 + (i - 1) * 14 + "px";
+    d.style.top = sr.top - rr.top + "px";
+    root.appendChild(d);
+    requestAnimationFrame(() => {
+      d.style.transform = "translate(" + (i - 1) * 16 + "px, -38px) scale(.5)";
+      d.style.opacity = "0";
+    });
+    setTimeout(() => d.remove(), 700);
+  }
+}
+
+/* ---- physics: the beam swings and settles into equilibrium ---- */
+function startPhysics(root) {
+  stopPhysics();
+  WPHYS.root = root;
+  WPHYS.tilt = 0;
+  WPHYS.vel = 0;
+  WPHYS.target = computeTiltTarget();
+  WPHYS.lastT = performance.now();
+  const step = (t) => {
+    const dt = Math.min(0.05, Math.max(0.001, (t - WPHYS.lastT) / 1000));
+    WPHYS.lastT = t;
+    const acc = 26 * (WPHYS.target - WPHYS.tilt) - 3.1 * WPHYS.vel;
+    WPHYS.vel += acc * dt;
+    WPHYS.tilt += WPHYS.vel * dt;
+    if (WPHYS.tilt > 16) {
+      WPHYS.tilt = 16;
+      WPHYS.vel = Math.min(0, WPHYS.vel) * 0.4;
+    }
+    if (WPHYS.tilt < -16) {
+      WPHYS.tilt = -16;
+      WPHYS.vel = Math.max(0, WPHYS.vel) * 0.4;
+    }
+    if (WPHYS.root) WPHYS.root.style.setProperty("--tilt", WPHYS.tilt.toFixed(3) + "deg");
+    WPHYS.raf = requestAnimationFrame(step);
+  };
+  WPHYS.raf = requestAnimationFrame(step);
+}
+function stopPhysics() {
+  if (WPHYS.raf) cancelAnimationFrame(WPHYS.raf);
+  WPHYS.raf = 0;
+  WPHYS.root = null;
+}
+
+/* ---- victory: a glass has overflowed ---- */
+function waageVictory() {
+  if (G.state !== "waage") return;
+  clearPhase();
+  G.state = "podium";
+  G.botTOs.forEach(clearTimeout);
+  G.botTOs = [];
+  G.players.forEach((p) => (p.wVis = p.wUnits || 0)); /* final state incl. drops still in the air */
+  const w = waageWinner();
+  stopPhysics();
+
+  stageRoot.innerHTML = "";
+  const scr = el("div", "waagescr win");
+  const head = el("div", "waagehead");
+  const title = el("h2", "wintitle", (w === 0 ? "Team Red" : "Team Blue") + " wins!");
+  title.style.color = w === 0 ? "var(--c1)" : "var(--c2)";
+  head.appendChild(title);
+  const scale = buildScale();
+  scr.appendChild(head);
+  scr.appendChild(scale);
+  const chips = el("div", "wchips");
+  WAAGE.teams[w].forEach((p, i) => {
+    const chip = el("div", "wchip");
+    chip.appendChild(avEl(p));
+    chip.appendChild(el("span", "", p.name + " · " + (p.wUnits || 0)));
+    chip.style.animationDelay = 150 + i * 90 + "ms";
+    chips.appendChild(chip);
+  });
+  scr.appendChild(chips);
+  const again = el("button", "pill");
+  again.innerHTML = '<svg class="ic"><use href="#i-refresh"/></svg>';
+  again.appendChild(el("span", "", "New round"));
+  again.addEventListener("click", () => location.reload());
+  scr.appendChild(again);
+  stageRoot.appendChild(scr);
+  updateScales();
+  startPhysics(scale);
+  FX.burst();
+  SFX.fanfare();
+  conns().forEach((c) => {
+    const p = c.playerRef;
+    c.send({
+      t: "finish",
+      podium: WAAGE.teams[w].map((x) => ({ name: x.name, animal: x.animal, score: x.wUnits || 0, color: x.wColor })),
+      you: p ? { rank: p.team === w ? 1 : 2, score: p.wUnits || 0, color: p.wColor } : null,
+    });
+  });
+  startReloadCountdown();
+}
+
+</script>
+<!-- END js/waage.js -->
 
     
 <!-- BEGIN js/create.js -->
@@ -5486,7 +6907,7 @@ function renderLibPreview(it) {
   head.appendChild(el("div", "pvname", it.title));
   const play = el("button", "pill");
   play.innerHTML = '<svg class="ic"><use href="#i-play"/></svg>';
-  play.appendChild(el("span", "", "Play quiz"));
+  play.appendChild(el("span", "", "Load"));
   play.addEventListener("click", () => {
     G.quiz = qz;
     SFX.join();
@@ -5712,7 +7133,17 @@ function onServer(m) {
       } else img.hidden = true;
       const btns = $("#cqBtns");
       const foot = $("#cqFoot");
-      if (m.type === "input") {
+
+      if (m.type === "info") {
+        btns.className = "cinfo";
+        btns.style.gridTemplateColumns = "";
+        btns.innerHTML = "";
+        const box = el("div", "cinfobox");
+        if (m.desc) box.appendChild(el("p", "cid", m.desc));
+        box.appendChild(el("p", "cinote", "ℹ Info – no answer needed"));
+        btns.appendChild(box);
+        foot.textContent = "";
+      } else if (m.type === "input") {
         btns.className = "cinput";
         btns.style.gridTemplateColumns = "";
         btns.innerHTML = "";
@@ -5817,6 +7248,7 @@ function onServer(m) {
       break;
     }
     case "finish": {
+      C.waage = null;
       C.finished = true;
       $("#endRank").textContent = m.you ? "Place " + m.you.rank : "Round over";
       if (m.you) {
@@ -5841,6 +7273,31 @@ function onServer(m) {
       SFX.fanfare();
       break;
     }
+    case "waageStart": {
+      C.waage = m.questions || [];
+      C.wIdx = 0;
+      C.finished = false;
+      showWaageQuestion();
+      break;
+    }
+    case "waageFeedback": {
+      const icon = $("#fbIcon");
+      icon.className = "fbi " + (m.ok ? "ok" : "no");
+      icon.querySelector("use").setAttribute("href", m.ok ? "#i-check" : "#i-x");
+      $("#fbTitle").textContent = m.ok ? "Correct!" : "Too bad";
+      $("#fbPts").textContent = m.ok ? "+1 poured into your glass" : "Nothing poured in";
+      $("#fbStreak").hidden = true;
+      $("#fbRank").textContent = "Next question …";
+      showC("c-fb");
+      if (m.ok) SFX.correct();
+      else SFX.wrong();
+      setTimeout(() => {
+        if (!C.waage || C.finished || !C.conn) return;
+        C.wIdx = (C.wIdx + 1) % C.waage.length; /* questions repeat */
+        showWaageQuestion();
+      }, 1900);
+      break;
+    }
     case "busy":
       $("#cjStatus").textContent = "This round is already running.";
       if (C.conn) {
@@ -5851,6 +7308,134 @@ function onServer(m) {
       break;
   }
 }
+
+/* balance mode: self-paced questions, one after another */
+function showWaageQuestion() {
+  const m = C.waage[C.wIdx];
+  if (!m) return;
+  C.answered = false;
+  C.qT0 = performance.now();
+  $("#cqText").textContent = m.text;
+  const img = $("#cqImg");
+  if (m.media && m.media.src) {
+    img.hidden = false;
+    img.innerHTML = "";
+    const im = document.createElement("img");
+    im.src = m.media.src;
+    img.appendChild(im);
+  } else img.hidden = true;
+  const btns = $("#cqBtns");
+  const foot = $("#cqFoot");
+  const send = (payload) => {
+    if (C.answered) return;
+    C.answered = true;
+    SFX.select();
+    payload.t = "waageAnswer";
+    payload.qi = m.ri;
+    payload.ms = performance.now() - C.qT0;
+    C.conn.send(payload);
+    foot.textContent = "Sent – waiting for the result …";
+  };
+  if (m.type === "info") {
+    btns.className = "cinfo";
+    btns.style.gridTemplateColumns = "";
+    btns.innerHTML = "";
+    const box = el("div", "cinfobox");
+    if (m.desc) box.appendChild(el("p", "cid", m.desc));
+    box.appendChild(el("p", "cinote", "ℹ Info"));
+    btns.appendChild(box);
+    foot.textContent = "";
+    showC("c-q");
+    SFX.intro();
+    setTimeout(
+      () => {
+        if (!C.waage || C.finished || !C.conn) return;
+        if (C.waage[C.wIdx] !== m) return; /* already advanced */
+        C.wIdx = (C.wIdx + 1) % C.waage.length;
+        showWaageQuestion();
+      },
+      Math.max(4000, (m.time || 300) * 1000),
+    );
+    return;
+  }
+  if (m.type === "input") {
+    btns.className = "cinput";
+    btns.style.gridTemplateColumns = "";
+    btns.innerHTML = "";
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.placeholder = "Type your answer…";
+    inp.autocomplete = "off";
+    inp.spellcheck = false;
+    const okBtn = el("button", "pill", "OK");
+    btns.appendChild(inp);
+    btns.appendChild(okBtn);
+    const submit = () => {
+      if (C.answered) return;
+      const val = inp.value.trim();
+      if (!val) {
+        foot.textContent = "Type something first…";
+        return;
+      }
+      inp.disabled = true;
+      okBtn.disabled = true;
+      send({ text: val });
+    };
+    okBtn.addEventListener("click", submit);
+    inp.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") submit();
+    });
+    foot.textContent = "";
+    setTimeout(() => inp.focus(), 120);
+  } else if (m.type === "order") {
+    btns.className = "cordlist";
+    btns.style.gridTemplateColumns = "";
+    btns.innerHTML = "";
+    m.ans.forEach((a, i) => {
+      const b = el("div", "scard a" + (i + 1));
+      b.dataset.idx = i;
+      b.innerHTML = '<span class="pos"></span><span class="txt"></span>';
+      b.querySelector(".txt").textContent = a;
+      btns.appendChild(b);
+    });
+    [...btns.children].forEach((x, i) => {
+      x.querySelector(".pos").textContent = String(i + 1);
+    });
+    foot.innerHTML = "";
+    const okBtn = el("button", "pill", "OK");
+    okBtn.addEventListener("click", () => {
+      if (C.answered) return;
+      btns.dataset.locked = "1";
+      okBtn.disabled = true;
+      const order = [...btns.children].map((x) => +x.dataset.idx);
+      send({ order });
+    });
+    foot.appendChild(okBtn);
+    makeSortable(btns);
+  } else {
+    btns.className = "abtns";
+    btns.style.gridTemplateColumns = m.ans.length === 2 ? "1fr" : "1fr 1fr";
+    btns.innerHTML = "";
+    const SHAPES = ["s-tri", "s-dia", "s-cir", "s-sqr"];
+    m.ans.forEach((a, i) => {
+      const b = el("button", "abtn a" + (i + 1));
+      b.innerHTML = '<svg><use href="#' + SHAPES[i] + '"/></svg>';
+      b.appendChild(el("span", "", a));
+      b.addEventListener("click", () => {
+        if (C.answered) return;
+        [...btns.children].forEach((x) => x.classList.add("lock"));
+        b.classList.remove("lock");
+        b.classList.add("sel");
+        send({ c: i });
+      });
+      btns.appendChild(b);
+    });
+    foot.textContent = "";
+  }
+  showC("c-q");
+  SFX.intro();
+}
+
 $("#btnReroll").addEventListener("click", propose);
 $("#btnJoin").addEventListener("click", connectClient);
 $("#endBtn").addEventListener("click", () => {
@@ -5943,10 +7528,31 @@ fileInput.addEventListener("change", (e) => {
   ),
 );
 
-$("#btnStart").addEventListener("click", startGame);
+/* multiplayer: the icon button opens the mode menu */
+const modeMenu = $("#modeMenu");
+$("#btnStart").addEventListener("click", (e) => {
+  e.stopPropagation();
+  modeMenu.classList.toggle("open");
+});
+$("#modeClassic").addEventListener("click", () => {
+  modeMenu.classList.remove("open");
+  G.mode = "classic";
+  startGame();
+});
+$("#modeWaage").addEventListener("click", () => {
+  modeMenu.classList.remove("open");
+  openWaageSetup();
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".mmbtnwrap")) modeMenu.classList.remove("open");
+});
 $("#btnSolo").addEventListener("click", startSolo);
 $("#btnBots").addEventListener("click", () => addBots(5));
 $("#btnExit").addEventListener("click", () => {
+  if (G.mode === "waage" && G.started) {
+    location.reload();
+    return;
+  }
   if (!G.started) {
     try {
       if (G.peer) G.peer.destroy();
@@ -5966,7 +7572,7 @@ $("#btnMute").addEventListener("click", () => {
 stageRoot.addEventListener("click", (e) => {
   if (G.state === "active") {
     if (e.target.closest(".timerwrap")) Timer.expire();
-  } else if (G.state === "intro" || G.state === "result" || G.state === "score") {
+  } else if (G.state === "intro" || G.state === "info" || G.state === "result" || G.state === "score") {
     skipPhase();
   }
 });
@@ -5979,7 +7585,7 @@ window.addEventListener("keydown", (e) => {
      trigger the space-to-skip shortcut                        */
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable)) return;
   if (e.code === "Space") {
-    if (["intro", "result", "score", "active"].includes(G.state)) {
+    if (["intro", "info", "result", "score", "active"].includes(G.state)) {
       e.preventDefault();
       skipPhase();
     }
